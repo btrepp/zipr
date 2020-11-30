@@ -1,0 +1,3 @@
+
+
+pub const END_OF_CENTRAL_DIRECTORY_HEADER :[u8;4]=  [0x50,0x4B,0x05,0x06];
