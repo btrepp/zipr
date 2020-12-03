@@ -1,66 +1,127 @@
-use crate::constants::END_OF_CENTRAL_DIRECTORY_HEADER;
+use crate::constants::{END_OF_CENTRAL_DIRECTORY_HEADER, END_OF_CENTRAL_DIRECTORY_HEADER_MIN_SIZE};
 
-use nom::{IResult, number::complete::be_u32, bytes::complete::{tag}, number::complete::be_u16};
+use nom::{IResult, bytes::complete::tag, bytes::complete::take, error::{ErrorKind}, number::complete::le_u16, number::complete::le_u32};
 
-#[derive(Debug,PartialEq)]
-pub struct EndOfCentralDirectory {
-    number_of_this_disk: u16,
-    directory_start_disk: u16,
-    records_on_this_disk: u16,
+#[derive(Debug, PartialEq,Default)]
+pub struct EndOfCentralDirectory<'a>{
     total_number_records: u16,
     size_of_directory: u32,
     offset_start_directory: u32,
-    comment_length: u16
+    comment: &'a [u8],
 }
 
-pub fn parse_eocd(input:&[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
+/// Parses the end of central directory record exactly
+/// Fails if its not present
+pub fn parse_eocd(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
     let (input, _) = tag(END_OF_CENTRAL_DIRECTORY_HEADER)(input)?;
-    let (input,number_of_this_disk) = be_u16(input)?;
-    let (input, directory_start_disk) = be_u16(input)?;
-    let (input, records_on_this_disk) = be_u16(input)?;
-    let (input, total_number_records) = be_u16(input)?;
-    let (input, size_of_directory) = be_u32(input)?;
-    let (input, offset_start_directory) = be_u32(input)?;
-    let (input, comment_length ) = be_u16(input)?;
-    let result = 
-        EndOfCentralDirectory {
-            number_of_this_disk,
-            directory_start_disk,
-            records_on_this_disk,
-            total_number_records,
-            size_of_directory,
-            offset_start_directory,
-            comment_length
-        };
-    Ok((input,result))
+    //For now only support a single zip file
+    let (input, _number_of_this_disk) = le_u16(input)?;
+    let (input, _directory_start_disk) = le_u16(input)?;
+    let (input, _records_on_this_disk) = le_u16(input)?;
+    let (input, total_number_records) = le_u16(input)?;
+    let (input, size_of_directory) = le_u32(input)?;
+    let (input, offset_start_directory) = le_u32(input)?;
+    let (input, comment_length) = le_u16(input)?;
+    let (input, comment) = take(comment_length)(input)?;
+    let result = EndOfCentralDirectory {        
+        total_number_records,
+        size_of_directory,
+        offset_start_directory,
+        comment,
+    };
+    Ok((input, result))
+}
+
+/// Like parse eocd, but walks backwards in the slice trying to find
+/// where the end of central directory record is
+pub fn try_find_parse_eocd(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
+    let length = input.len();
+    let minimal = length - END_OF_CENTRAL_DIRECTORY_HEADER_MIN_SIZE+1;
+    
+    let start = &input[0..minimal];
+    
+    
+    for (index,_) in start.iter().rev().enumerate(){
+        let input = &input[index..length];
+        match parse_eocd(input) {
+            Ok(result) => return Ok(result),
+            Err(_) => ()
+        }
+    }
+
+    return parse_eocd(input)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{EndOfCentralDirectory, parse_eocd};
+    use crate::constants::END_OF_CENTRAL_DIRECTORY_HEADER_MIN_SIZE;
 
+    use super::{EndOfCentralDirectory, parse_eocd, try_find_parse_eocd};
 
-    const MINIMAL : [u8;22] = [0x50,0x4B,0x05,0x06,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00];
+    const MINIMAL: [u8; 22] = [
+        0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    ];
+
+    
     #[test]
     fn minimal() {
-
         let result = parse_eocd(&MINIMAL);
         let expected = {
             let remaining: &[u8] = &[];
             let directory = EndOfCentralDirectory {
-                number_of_this_disk : 0,
-                directory_start_disk : 0, 
-                records_on_this_disk: 0,
-                total_number_records : 0,
-                size_of_directory: 0,
-                offset_start_directory: 0,
-                comment_length: 0
+                ..Default::default()
             };
             Ok((remaining, directory))
         };
-        assert_eq!(expected,result);
+        assert_eq!(expected, result);
+    }
+
+    #[test]
+    fn hello_world_store(){
+        let hello = include_bytes!("../assets/hello_world_store.zip");
+        let header = {
+            let len = hello.len();
+            &hello[len - END_OF_CENTRAL_DIRECTORY_HEADER_MIN_SIZE..len]
+        };
+        let result = parse_eocd(header);
+        let expected = EndOfCentralDirectory {
+            total_number_records: 1,
+            size_of_directory: 91,
+            offset_start_directory: 44,
+            ..Default::default()
+        };
+
+        assert_eq!(Ok((&[] as &[u8],expected)), result);
+    }
+
+    
+    #[test]
+    fn hello_world_store_without_position(){
+        let input = include_bytes!("../assets/hello_world_store.zip");
+        let result = try_find_parse_eocd(input);
+        let expected = EndOfCentralDirectory {
+            total_number_records: 1,
+            size_of_directory: 91,
+            offset_start_directory: 44,
+            ..Default::default()
+        };
+
+        assert_eq!(Ok((&[] as &[u8],expected)), result);
+    }
+
+    #[test]
+    fn hello_world_store_with_comment(){
+        let input = include_bytes!("../assets/hello_world_store_with_comment.zip");
+        let comment = "tricky".as_bytes();
+        let result = try_find_parse_eocd(input);
+        let expected = EndOfCentralDirectory {
+            total_number_records: 1,
+            size_of_directory: 91,
+            offset_start_directory: 44,
+            comment,            
+        };
+
+        assert_eq!(Ok((&[] as &[u8],expected)), result);
     }
 }
-
-
-

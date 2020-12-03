@@ -1,16 +1,7 @@
 mod constants;
 mod eocd;
+//mod central_directory;
 
 pub mod parsers {
-    pub use crate::eocd::parse_eocd;
+    pub use crate::eocd::*;
 }
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        assert_eq!(2 + 2, 4);
-    }
-}
-
-
