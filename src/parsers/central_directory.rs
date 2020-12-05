@@ -6,14 +6,14 @@ use nom::{
 };
 use winstructs::timestamp::{DosDate, DosTime};
 
-use super::extra_field::parse_extra_field;
+use super::{compression_method::parse_compression_method, extra_field::parse_extra_field};
 
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {
     let (input, _) = tag(CENTRAL_DIRECTORY_HEADER)(input)?;
     let (input, version_made_by) = le_u16(input)?;
     let (input, version_needed) = le_u16(input)?;
     let (input, general_purpose) = le_u16(input)?;
-    let (input, compression_method) = le_u16(input)?;
+    let (input, compression_method) = map_parser(take(2u16), parse_compression_method)(input)?;
     let (input, file_modification_time) = map(le_u16, DosTime::new)(input)?;
     let (input, file_modification_date) = map(le_u16, DosDate::new)(input)?;
     let (input, crc32) = le_u32(input)?;
@@ -95,7 +95,7 @@ mod tests {
                 mtime: WinTimestamp::from_u64(132514707831351075),
                 ctime: WinTimestamp::from_u64(132514707783459448),
             }),
-            compression_method: 0,
+            compression_method: crate::data::CompressionMethod::Stored,
             general_purpose: 0,
             relative_offset: 0,
         };

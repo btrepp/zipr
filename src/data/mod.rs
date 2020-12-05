@@ -23,8 +23,8 @@ pub struct CentralDirectoryEntry<'a> {
     pub version_made_by: u16,
     pub version_needed: u16,
     pub general_purpose: u16,
-    pub compression_method: u16,         //ENUM?
-    pub file_modification_time: DosTime, //TIME FORMAT?
+    pub compression_method: CompressionMethod,
+    pub file_modification_time: DosTime,
     pub file_modification_date: DosDate,
     pub crc32: u32,
     pub compressed_size: u32,
@@ -35,4 +35,12 @@ pub struct CentralDirectoryEntry<'a> {
     pub file_name: &'a str,
     pub extra_field: ExtraField<'a>,
     pub comment: &'a str,
+}
+
+/// Enum describing the compression method
+/// note there are many of these. We don't implement them all
+#[derive(Debug, PartialEq)]
+pub enum CompressionMethod {
+    Stored,
+    Deflate,
 }
