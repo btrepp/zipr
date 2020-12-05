@@ -104,6 +104,20 @@ mod tests {
     }
 
     #[test]
+    fn two_file_store() {
+        let hello = include_bytes!("../../assets/two_files_store.zip");
+        let data = &hello[0xb4..(0x59 + 185)];
+        let result = parse_directory_header(data);
+
+        let (input, result) = result.unwrap();
+
+        assert_eq!(0, input.len());
+
+        assert_eq!(44, result.relative_offset);
+        assert_eq!("moredata.txt", result.file_name);
+    }
+
+    #[test]
     fn hello_world_store_as_entries() {
         let hello = include_bytes!("../../assets/hello_world_store.zip");
         let data = &hello[0x2c..0x87];
