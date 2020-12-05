@@ -1,7 +1,3 @@
-mod constants;
-mod eocd;
-//mod central_directory;
-
-pub mod parsers {
-    pub use crate::eocd::*;
-}
+pub mod constants;
+pub mod data;
+pub mod parsers;
