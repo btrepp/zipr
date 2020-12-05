@@ -120,4 +120,22 @@ mod tests {
 
         assert_eq!(Ok((&[] as &[u8], expected)), result);
     }
+
+    #[test]
+    fn two_files_store() {
+        let hello = include_bytes!("../../assets/two_files_store.zip");
+        let header = {
+            let len = hello.len();
+            &hello[len - END_OF_CENTRAL_DIRECTORY_MIN_SIZE..len]
+        };
+        let result = parse_eocd(header);
+        let expected = EndOfCentralDirectory {
+            total_number_records: 2,
+            size_of_directory: 185,
+            offset_start_directory: 0x59,
+            ..Default::default()
+        };
+
+        assert_eq!(Ok((&[] as &[u8], expected)), result);
+    }
 }

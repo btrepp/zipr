@@ -23,7 +23,7 @@ pub struct CentralDirectoryEntry<'a> {
     pub version_made_by: u16,
     pub version_needed: u16,
     pub general_purpose: u16,
-    pub compression_method: u16,     //ENUM?
+    pub compression_method: u16,         //ENUM?
     pub file_modification_time: DosTime, //TIME FORMAT?
     pub file_modification_date: DosDate,
     pub crc32: u32,
