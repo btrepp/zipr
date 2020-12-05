@@ -1,8 +1,8 @@
 use nom::{
-    bytes::complete::tag, bytes::complete::take, combinator::map_parser, combinator::map_res,
+    bytes::complete::tag, bytes::complete::take, combinator::map_parser, combinator::map_res,combinator::map,
     lib::std::str::from_utf8, number::complete::le_u16, number::complete::le_u32, IResult,
 };
-
+use winstructs::timestamp::{DosDate,DosTime};
 use crate::{constants::CENTRAL_DIRECTORY_HEADER, data::CentralDirectoryEntry};
 
 use super::extra_field::parse_extra_field;
@@ -13,8 +13,10 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
     let (input, version_needed) = le_u16(input)?;
     let (input, general_purpose) = le_u16(input)?;
     let (input, compression_method) = le_u16(input)?;
-    let (input, file_modification_time) = le_u16(input)?;
-    let (input, file_modification_date) = le_u16(input)?;
+    let (input, file_modification_time) = 
+        map(le_u16,DosTime::new)(input)?;
+    let (input, file_modification_date) = 
+        map(le_u16,DosDate::new)(input)?;
     let (input, crc32) = le_u32(input)?;
     let (input, compressed_size) = le_u32(input)?;
     let (input, uncompressed_size) = le_u32(input)?;
@@ -67,8 +69,8 @@ mod tests {
         let expected = CentralDirectoryEntry {
             version_made_by: 63,
             version_needed: 10,
-            file_modification_time: 41164,
-            file_modification_date: 20867,
+            file_modification_time: DosTime::new(41164),
+            file_modification_date: DosDate::new(20867),
             crc32: 980881731,
             compressed_size: 5,
             uncompressed_size: 5,
@@ -81,7 +83,9 @@ mod tests {
                 mtime: WinTimestamp::from_u64(132514707831351075),
                 ctime: WinTimestamp::from_u64(132514707783459448),
             }),
-            ..Default::default()
+            compression_method: 0,
+            general_purpose: 0,
+            relative_offset: 0
         };
 
         assert_eq!(Ok((&[] as &[u8], expected)), result);

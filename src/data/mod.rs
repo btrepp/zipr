@@ -1,4 +1,5 @@
 use extra_field::ExtraField;
+use winstructs::timestamp::{DosDate, DosTime};
 
 pub mod extra_field;
 
@@ -17,14 +18,14 @@ pub struct EndOfCentralDirectory<'a> {
 /// An entry for a file in the central directory
 /// This is the 'true' source of where a file is
 /// and what properties it has
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq)]
 pub struct CentralDirectoryEntry<'a> {
     pub version_made_by: u16,
     pub version_needed: u16,
     pub general_purpose: u16,
     pub compression_method: u16,     //ENUM?
-    pub file_modification_time: u16, //TIME FORMAT?
-    pub file_modification_date: u16,
+    pub file_modification_time: DosTime, //TIME FORMAT?
+    pub file_modification_date: DosDate,
     pub crc32: u32,
     pub compressed_size: u32,
     pub uncompressed_size: u32,
