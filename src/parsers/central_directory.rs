@@ -6,7 +6,9 @@ use nom::{
 };
 use winstructs::timestamp::{DosDate, DosTime};
 
-use super::{compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path};
+use super::{
+    compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
+};
 
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {
     let (input, _) = tag(CENTRAL_DIRECTORY_HEADER)(input)?;
@@ -28,8 +30,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
     let (input, external_file_attributes) = le_u32(input)?;
     let (input, relative_offset) = le_u32(input)?;
 
-    let (input, file_name) = 
-        map_parser(take(file_name_length),parse_path)(input)?;        
+    let (input, file_name) = map_parser(take(file_name_length), parse_path)(input)?;
 
     let (input, extra_field) = map_parser(take(extra_field_length), parse_extra_field)(input)?;
 

@@ -41,9 +41,9 @@ pub struct CentralDirectoryEntry<'a> {
     pub comment: &'a str,
 }
 
-/// The local file description 
+/// The local file description
 /// Note bytes will be right after this
-/// It is not strictly necessary to use this to parse 
+/// It is not strictly necessary to use this to parse
 /// a file
 #[derive(Debug, PartialEq)]
 pub struct LocalFileEntry<'a> {

@@ -1,11 +1,12 @@
-use std::{path::Path, str::{Utf8Error, from_utf8}};
+use std::{
+    path::Path,
+    str::{from_utf8, Utf8Error},
+};
 
-use nom::{IResult, combinator::map_res, bytes::complete::take};
-
+use nom::{bytes::complete::take, combinator::map_res, IResult};
 
 pub fn parse_path<'a>(input: &'a [u8]) -> IResult<&[u8], &'a Path> {
-
-    let to_path = | bytes: &'a [u8] | -> Result<&'a Path, Utf8Error> {
+    let to_path = |bytes: &'a [u8]| -> Result<&'a Path, Utf8Error> {
         let utf8 = from_utf8(bytes)?;
         Ok(Path::new(utf8))
     };
