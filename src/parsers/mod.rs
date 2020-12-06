@@ -5,3 +5,4 @@ pub mod extra_field;
 pub mod local_file;
 pub mod ntfs;
 pub mod path;
+pub mod file_data;

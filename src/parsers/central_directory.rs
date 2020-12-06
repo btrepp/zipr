@@ -1,4 +1,4 @@
-use crate::{constants::CENTRAL_DIRECTORY_HEADER, data::CentralDirectoryEntry};
+use crate::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
 use nom::{
     bytes::complete::tag, bytes::complete::take, combinator::eof, combinator::iterator,
     combinator::map, combinator::map_parser, combinator::map_res, lib::std::str::from_utf8,
@@ -11,7 +11,7 @@ use super::{
 };
 
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {
-    let (input, _) = tag(CENTRAL_DIRECTORY_HEADER)(input)?;
+    let (input, _) = tag(CENTRAL_DIRECTORY_HEADER_SIGNATURE)(input)?;
     let (input, version_made_by) = le_u16(input)?;
     let (input, version_needed) = le_u16(input)?;
     let (input, general_purpose) = le_u16(input)?;
@@ -104,6 +104,35 @@ mod tests {
             relative_offset: 0,
         };
 
+        assert_eq!(Ok((&[] as &[u8], expected)), result);
+    }
+
+    #[test]
+    fn hello_world_deflate() {
+        let hello = include_bytes!("../../assets/hello_world_deflate.zip");
+        let data = &hello[0x3d..0x3d+91];
+        let result = parse_directory_header(data);
+        let expected = CentralDirectoryEntry {
+            version_made_by: 63,
+            version_needed: 20,
+            file_modification_time: DosTime::new(43312),
+            file_modification_date: DosDate::new(20870),
+            crc32: 810231625,
+            compressed_size: 22,
+            uncompressed_size: 215,
+            internal_file_attributes: 0,
+            external_file_attributes: 32,
+            file_name: Path::new("hello.txt"),
+            comment: "",
+            extra_field: ExtraField::NTFS(NTFS {
+                atime: WinTimestamp::new(&[0x1c,0x52,0x77,0x08,0xd1,0xcb,0xd6,0x01]).unwrap(),
+                mtime: WinTimestamp::new(&[0x1c,0x52,0x77,0x08,0xd1,0xcb,0xd6,0x01]).unwrap(),
+                ctime: WinTimestamp::new(&[0x78,0xa2,0xf2,0xb4,0x6c,0xc9,0xd6,0x01]).unwrap()                
+            }),
+            compression_method: crate::data::CompressionMethod::Deflate,
+            general_purpose: 0,
+            relative_offset: 0,
+        };
         assert_eq!(Ok((&[] as &[u8], expected)), result);
     }
 
