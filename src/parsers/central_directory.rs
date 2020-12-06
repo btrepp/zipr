@@ -6,7 +6,7 @@ use nom::{
 };
 use winstructs::timestamp::{DosDate, DosTime};
 
-use super::{compression_method::parse_compression_method, extra_field::parse_extra_field};
+use super::{compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path};
 
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {
     let (input, _) = tag(CENTRAL_DIRECTORY_HEADER)(input)?;
@@ -27,7 +27,9 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
     let (input, internal_file_attributes) = le_u16(input)?;
     let (input, external_file_attributes) = le_u32(input)?;
     let (input, relative_offset) = le_u32(input)?;
-    let (input, file_name) = map_res(take(file_name_length), from_utf8)(input)?;
+
+    let (input, file_name) = 
+        map_parser(take(file_name_length),parse_path)(input)?;        
 
     let (input, extra_field) = map_parser(take(extra_field_length), parse_extra_field)(input)?;
 
@@ -65,6 +67,7 @@ pub fn parse_directory_entries<'a>(
 #[cfg(test)]
 mod tests {
     use core::panic;
+    use std::path::Path;
 
     use nom::Finish;
     use winstructs::timestamp::WinTimestamp;
@@ -88,7 +91,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: "hello.txt",
+            file_name: Path::new("hello.txt"),
             comment: "",
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::from_u64(132514708162669827),
@@ -114,7 +117,7 @@ mod tests {
         assert_eq!(0, input.len());
 
         assert_eq!(44, result.relative_offset);
-        assert_eq!("moredata.txt", result.file_name);
+        assert_eq!(Path::new("moredata.txt"), result.file_name);
     }
 
     #[test]
@@ -127,7 +130,7 @@ mod tests {
 
         assert_eq!(0, rem.len());
         assert_eq!(1, result.len());
-        assert_eq!("hello.txt", result[0].file_name);
+        assert_eq!(Path::new("hello.txt"), result[0].file_name);
     }
 
     #[test]
@@ -140,7 +143,7 @@ mod tests {
 
         assert_eq!(0, rem.len());
         assert_eq!(2, result.len());
-        assert_eq!("hello.txt", result[0].file_name);
-        assert_eq!("moredata.txt", result[1].file_name);
+        assert_eq!(Path::new("hello.txt"), result[0].file_name);
+        assert_eq!(Path::new("moredata.txt"), result[1].file_name);
     }
 }
