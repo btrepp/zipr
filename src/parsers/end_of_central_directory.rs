@@ -8,7 +8,7 @@ use nom::{
 
 /// Parses the end of central directory record exactly
 /// Fails if its not present
-pub fn parse_eocd(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
+pub fn parse_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
     let (input, _) = tag(END_OF_CENTRAL_DIRECTORY_HEADER)(input)?;
     //For now only support a single zip file
     let (input, _number_of_this_disk) = tag([0, 0])(input)?;
@@ -33,7 +33,7 @@ pub fn parse_eocd(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
 
 /// Like parse eocd, but walks backwards in the slice trying to find
 /// where the end of central directory record is
-pub fn try_find_parse_eocd(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
+pub fn try_find_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory> {
     let length = input.len();
     let minimal = length - END_OF_CENTRAL_DIRECTORY_MIN_SIZE + 1;
 
@@ -41,20 +41,20 @@ pub fn try_find_parse_eocd(input: &[u8]) -> IResult<&[u8], EndOfCentralDirectory
 
     for (index, _) in start.iter().rev().enumerate() {
         let input = &input[index..length];
-        match parse_eocd(input) {
+        match parse_end_of_central_directory(input) {
             Ok(result) => return Ok(result),
             Err(_) => (),
         }
     }
 
-    return parse_eocd(input);
+    return parse_end_of_central_directory(input);
 }
 
 #[cfg(test)]
 mod tests {
     use crate::{constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE, data::EndOfCentralDirectory};
 
-    use super::{parse_eocd, try_find_parse_eocd};
+    use super::{parse_end_of_central_directory, try_find_end_of_central_directory};
 
     const MINIMAL: [u8; 22] = [
         0x50, 0x4B, 0x05, 0x06, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -63,7 +63,7 @@ mod tests {
 
     #[test]
     fn minimal() {
-        let result = parse_eocd(&MINIMAL);
+        let result = parse_end_of_central_directory(&MINIMAL);
         let expected = {
             let remaining: &[u8] = &[];
             let directory = EndOfCentralDirectory {
@@ -81,7 +81,7 @@ mod tests {
             let len = hello.len();
             &hello[len - END_OF_CENTRAL_DIRECTORY_MIN_SIZE..len]
         };
-        let result = parse_eocd(header);
+        let result = parse_end_of_central_directory(header);
         let expected = EndOfCentralDirectory {
             total_number_records: 1,
             size_of_directory: 91,
@@ -95,7 +95,7 @@ mod tests {
     #[test]
     fn hello_world_store_without_position() {
         let input = include_bytes!("../../assets/hello_world_store.zip");
-        let result = try_find_parse_eocd(input);
+        let result = try_find_end_of_central_directory(input);
         let expected = EndOfCentralDirectory {
             total_number_records: 1,
             size_of_directory: 91,
@@ -110,7 +110,7 @@ mod tests {
     fn hello_world_store_with_comment() {
         let input = include_bytes!("../../assets/hello_world_store_with_comment.zip");
         let comment = "tricky".as_bytes();
-        let result = try_find_parse_eocd(input);
+        let result = try_find_end_of_central_directory(input);
         let expected = EndOfCentralDirectory {
             total_number_records: 1,
             size_of_directory: 91,
@@ -128,7 +128,7 @@ mod tests {
             let len = hello.len();
             &hello[len - END_OF_CENTRAL_DIRECTORY_MIN_SIZE..len]
         };
-        let result = parse_eocd(header);
+        let result = parse_end_of_central_directory(header);
         let expected = EndOfCentralDirectory {
             total_number_records: 2,
             size_of_directory: 185,
