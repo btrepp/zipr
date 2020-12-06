@@ -42,7 +42,11 @@ pub struct CentralDirectoryEntry<'a> {
 }
 
 /// The local file description 
-pub struct LocalFile<'a> {
+/// Note bytes will be right after this
+/// It is not strictly necessary to use this to parse 
+/// a file
+#[derive(Debug, PartialEq)]
+pub struct LocalFileEntry<'a> {
     pub version_needed: u16,
     pub general_purpose: u16,
     pub compression_method: CompressionMethod,
