@@ -28,10 +28,10 @@ mod tests {
             file_modification_time: DosTime::new(41164),
             file_modification_date: DosDate::new(20867),
             crc32: 980881731,
-            compressed_size: 5,
             uncompressed_size: 5,
             file_name: Path::new("hello.txt"),
             extra_field: ExtraField::Unknown(&[]),
+            bytes: &[]
         };
         let result = data_offset(input);
 
@@ -47,10 +47,10 @@ mod tests {
             file_modification_time: DosTime::new(41164),
             file_modification_date: DosDate::new(20867),
             crc32: 980881731,
-            compressed_size: 5,
             uncompressed_size: 5,
             file_name: Path::new("more.txt"),
             extra_field: ExtraField::Unknown(&[]),
+            bytes: &[]
         };
         let result = data_offset(input);
 

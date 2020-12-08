@@ -1,13 +1,19 @@
 use crate::{constants::CENTRAL_DIRECTORY_HEAD_MIN_LENGTH, data::CentralDirectoryEntry};
 
-/// Given a local file entry, locate where the data is located
-/// Note: this is the minimum size + file size + extra data size
-pub fn  zip_size(entry:&CentralDirectoryEntry) -> u32 {
-    let file_length = entry.file_name.as_os_str().len();
-    let extra_length = crate::domain::extra_field::zip_size(&entry.extra_field);
-    let comment_length = entry.comment.len();
-    CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as u32 + file_length as u32 + extra_length + comment_length as u32
-}
+
+
+
+impl<'a> CentralDirectoryEntry<'a> {
+
+    /// Given a local file entry, locate where the data is located
+    /// Note: this is the minimum size + file size + extra data size
+    pub fn  zip_size(&self) -> u32 {
+        let file_length = self.file_name.as_os_str().len();
+        let extra_length = crate::domain::extra_field::zip_size(&self.extra_field);
+        let comment_length = self.comment.len();
+        CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as u32 + file_length as u32 + extra_length + comment_length as u32
+    }
+}    
 
 #[cfg(test)]
 mod tests {
@@ -43,7 +49,7 @@ mod tests {
             relative_offset: 0,
         };
 
-        let result = zip_size(&input);        
+        let result = input.zip_size();
         assert_eq!(9, input.file_name.as_os_str().len());
         assert_eq!(36, crate::domain::extra_field::zip_size(&input.extra_field));
         assert_eq!(0, input.comment.len());

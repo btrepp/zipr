@@ -27,6 +27,8 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
 
     let (input, extra_field) = map_parser(take(extra_field_length), parse_extra_field)(input)?;
 
+    let (input, bytes) = take(compressed_size)(input)?;
+
     let result = LocalFileEntry {
         version_needed,
         general_purpose,
@@ -34,10 +36,10 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
         file_modification_time,
         file_modification_date,
         crc32,
-        compressed_size,
         uncompressed_size,
         file_name,
         extra_field,
+        bytes
     };
     Ok((input, result))
 }
@@ -52,7 +54,7 @@ mod tests {
     #[test]
     fn hello_world_store() {
         let hello = include_bytes!("../../assets/hello_world_store.zip");
-        let data = &hello[0..0x27];
+        let data = &hello[0..0x2c];
         let result = parse_local_file(data);
         let expected = LocalFileEntry {
             version_needed: 10,
@@ -61,10 +63,10 @@ mod tests {
             file_modification_time: DosTime::new(41164),
             file_modification_date: DosDate::new(20867),
             crc32: 980881731,
-            compressed_size: 5,
             uncompressed_size: 5,
             file_name: Path::new("hello.txt"),
             extra_field: ExtraField::Unknown(&[]),
+            bytes: "world".as_bytes()
         };
 
         assert_eq!(Ok((&[] as &[u8], expected)), result);
