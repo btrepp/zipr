@@ -1,6 +1,6 @@
 use nom::{branch::alt, bytes::complete::take, combinator::map, IResult};
 
-use crate::data::extra_field::ExtraField;
+use zipr_core::data::extra_field::ExtraField;
 
 use super::ntfs::parse_ntfs;
 
@@ -22,7 +22,7 @@ mod tests {
 
     use winstructs::timestamp::WinTimestamp;
 
-    use crate::data::extra_field::ntfs::NTFS;
+    use zipr_core::data::extra_field::ntfs::NTFS;
 
     use super::*;
 

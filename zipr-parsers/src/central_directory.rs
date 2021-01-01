@@ -1,10 +1,10 @@
-use crate::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
 use nom::{
     bytes::complete::tag, bytes::complete::take, combinator::eof, combinator::iterator,
     combinator::map, combinator::map_parser, combinator::map_res, lib::std::str::from_utf8,
     number::complete::le_u16, number::complete::le_u32, IResult,
 };
 use winstructs::timestamp::{DosDate, DosTime};
+use zipr_core::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
@@ -73,7 +73,7 @@ mod tests {
     use nom::Finish;
     use winstructs::timestamp::WinTimestamp;
 
-    use crate::data::extra_field::{ntfs::NTFS, ExtraField};
+    use zipr_core::data::extra_field::{ntfs::NTFS, ExtraField};
 
     use super::*;
 
@@ -99,7 +99,7 @@ mod tests {
                 mtime: WinTimestamp::from_u64(132514707831351075),
                 ctime: WinTimestamp::from_u64(132514707783459448),
             }),
-            compression_method: crate::data::CompressionMethod::Stored,
+            compression_method: zipr_core::data::CompressionMethod::Stored,
             general_purpose: 0,
             relative_offset: 0,
         };
@@ -110,7 +110,7 @@ mod tests {
     #[test]
     fn hello_world_deflate() {
         let hello = include_bytes!("../../assets/hello_world_deflate.zip");
-        let data = &hello[0x3d..0x3d+91];
+        let data = &hello[0x3d..0x3d + 91];
         let result = parse_directory_header(data);
         let expected = CentralDirectoryEntry {
             version_made_by: 63,
@@ -125,11 +125,14 @@ mod tests {
             file_name: Path::new("hello.txt"),
             comment: "",
             extra_field: ExtraField::NTFS(NTFS {
-                atime: WinTimestamp::new(&[0x1c,0x52,0x77,0x08,0xd1,0xcb,0xd6,0x01]).unwrap(),
-                mtime: WinTimestamp::new(&[0x1c,0x52,0x77,0x08,0xd1,0xcb,0xd6,0x01]).unwrap(),
-                ctime: WinTimestamp::new(&[0x78,0xa2,0xf2,0xb4,0x6c,0xc9,0xd6,0x01]).unwrap()                
+                atime: WinTimestamp::new(&[0x1c, 0x52, 0x77, 0x08, 0xd1, 0xcb, 0xd6, 0x01])
+                    .unwrap(),
+                mtime: WinTimestamp::new(&[0x1c, 0x52, 0x77, 0x08, 0xd1, 0xcb, 0xd6, 0x01])
+                    .unwrap(),
+                ctime: WinTimestamp::new(&[0x78, 0xa2, 0xf2, 0xb4, 0x6c, 0xc9, 0xd6, 0x01])
+                    .unwrap(),
             }),
-            compression_method: crate::data::CompressionMethod::Deflate,
+            compression_method: zipr_core::data::CompressionMethod::Deflate,
             general_purpose: 0,
             relative_offset: 0,
         };

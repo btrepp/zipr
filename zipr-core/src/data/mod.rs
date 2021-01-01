@@ -52,11 +52,11 @@ pub struct LocalFileEntry<'a> {
     pub compression_method: CompressionMethod,
     pub file_modification_time: DosTime,
     pub file_modification_date: DosDate,
-    pub crc32: u32,    
+    pub crc32: u32,
     pub uncompressed_size: u32,
     pub file_name: &'a Path,
     pub extra_field: ExtraField<'a>,
-    pub bytes: &'a[u8]
+    pub bytes: &'a [u8],
 }
 
 /// Enum describing the compression method

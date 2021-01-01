@@ -1,19 +1,18 @@
 use crate::{constants::CENTRAL_DIRECTORY_HEAD_MIN_LENGTH, data::CentralDirectoryEntry};
 
-
-
-
 impl<'a> CentralDirectoryEntry<'a> {
-
     /// Given a local file entry, locate where the data is located
     /// Note: this is the minimum size + file size + extra data size
-    pub fn  zip_size(&self) -> u32 {
+    pub fn zip_size(&self) -> u32 {
         let file_length = self.file_name.as_os_str().len();
         let extra_length = crate::domain::extra_field::zip_size(&self.extra_field);
         let comment_length = self.comment.len();
-        CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as u32 + file_length as u32 + extra_length + comment_length as u32
+        CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as u32
+            + file_length as u32
+            + extra_length
+            + comment_length as u32
     }
-}    
+}
 
 #[cfg(test)]
 mod tests {
@@ -21,10 +20,10 @@ mod tests {
 
     use winstructs::timestamp::{DosDate, DosTime, WinTimestamp};
 
-    use crate::data::extra_field::{ExtraField, ntfs::NTFS};
+    use crate::data::extra_field::{ntfs::NTFS, ExtraField};
 
     use super::*;
-   
+
     #[test]
     fn test_data_offset_hellotxt() {
         let input = CentralDirectoryEntry {
@@ -55,5 +54,4 @@ mod tests {
         assert_eq!(0, input.comment.len());
         assert_eq!(91, result);
     }
-
 }

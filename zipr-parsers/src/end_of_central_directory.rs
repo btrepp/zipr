@@ -1,5 +1,5 @@
-use crate::constants::{END_OF_CENTRAL_DIRECTORY_HEADER, END_OF_CENTRAL_DIRECTORY_MIN_SIZE};
-use crate::data::EndOfCentralDirectory;
+use zipr_core::constants::{END_OF_CENTRAL_DIRECTORY_HEADER, END_OF_CENTRAL_DIRECTORY_MIN_SIZE};
+use zipr_core::data::EndOfCentralDirectory;
 
 use nom::{
     bytes::complete::tag, bytes::complete::take, combinator::eof, number::complete::le_u16,
@@ -52,7 +52,7 @@ pub fn try_find_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCe
 
 #[cfg(test)]
 mod tests {
-    use crate::{constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE, data::EndOfCentralDirectory};
+    use zipr_core::{constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE, data::EndOfCentralDirectory};
 
     use super::{parse_end_of_central_directory, try_find_end_of_central_directory};
 

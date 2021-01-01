@@ -1,6 +1,6 @@
 use nom::{branch::alt, bytes::complete::tag, combinator::map, IResult};
 
-use crate::{
+use zipr_core::{
     constants::{COMPRESSION_DEFLATE, COMPRESSION_STORED},
     data::CompressionMethod,
 };

@@ -1,9 +1,9 @@
-use crate::{constants::EXTRA_FIELD_NTFS_HEADER, data::extra_field::ntfs::NTFS};
 use nom::{
     bytes::complete::tag, combinator::map, number::complete::le_u32, number::complete::le_u64,
     IResult,
 };
 use winstructs::timestamp::WinTimestamp;
+use zipr_core::{constants::EXTRA_FIELD_NTFS_HEADER, data::extra_field::ntfs::NTFS};
 
 pub fn parse_ntfs(input: &[u8]) -> IResult<&[u8], NTFS> {
     let (input, _) = tag(EXTRA_FIELD_NTFS_HEADER)(input)?;

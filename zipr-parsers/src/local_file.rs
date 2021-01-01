@@ -4,7 +4,7 @@ use nom::{
 };
 use winstructs::timestamp::{DosDate, DosTime};
 
-use crate::{constants::LOCAL_FILE_HEADER_SIGNATURE, data::LocalFileEntry};
+use zipr_core::{constants::LOCAL_FILE_HEADER_SIGNATURE, data::LocalFileEntry};
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
@@ -39,16 +39,16 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
         uncompressed_size,
         file_name,
         extra_field,
-        bytes
+        bytes,
     };
     Ok((input, result))
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::data::extra_field::ExtraField;
     use core::panic;
     use std::path::Path;
+    use zipr_core::data::extra_field::ExtraField;
 
     use super::*;
     #[test]
@@ -59,14 +59,14 @@ mod tests {
         let expected = LocalFileEntry {
             version_needed: 10,
             general_purpose: 0,
-            compression_method: crate::data::CompressionMethod::Stored,
+            compression_method: zipr_core::data::CompressionMethod::Stored,
             file_modification_time: DosTime::new(41164),
             file_modification_date: DosDate::new(20867),
             crc32: 980881731,
             uncompressed_size: 5,
             file_name: Path::new("hello.txt"),
             extra_field: ExtraField::Unknown(&[]),
-            bytes: "world".as_bytes()
+            bytes: "world".as_bytes(),
         };
 
         assert_eq!(Ok((&[] as &[u8], expected)), result);

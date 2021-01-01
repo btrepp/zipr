@@ -3,6 +3,6 @@
 pub fn read_zip_as_map<'a>(bytes: &'a [u8]) -> HashMap<&'a Path,Iter<'a, u8>>{
     let mut map = HashMap::new();
 
-    let 
+    let
     map
 } */

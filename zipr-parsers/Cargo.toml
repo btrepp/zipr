@@ -1,0 +1,13 @@
+[package]
+name = "zipr-parsers"
+version = "0.1.0"
+authors = ["beau trepp <beautrepp@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+flate2 = "1.0"
+nom = "6.0.1"
+winstructs = { version = "0.3.1-alpha.0", path = "../../winstructs" }
+zipr-core = {path="../zipr-core"}
