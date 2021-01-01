@@ -1,5 +1,5 @@
 [package]
-name = "nom-zip"
+name = "zipr"
 version = "0.1.0"
 authors = ["beau trepp <beautrepp@gmail.com>"]
 edition = "2018"
