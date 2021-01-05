@@ -6,6 +6,8 @@ use nom::{
 use winstructs::timestamp::{DosDate, DosTime};
 use zipr_core::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
 
+use crate::end_of_central_directory::try_find_end_of_central_directory;
+
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
 };
@@ -63,6 +65,15 @@ pub fn parse_directory_entries<'a>(
     let (input, _) = it.finish()?;
     let (input, _eof) = eof(input)?;
     Ok((input, result))
+}
+
+pub fn try_parse_entries<'a>(input: &'a [u8]) -> IResult<&'a [u8], Vec<CentralDirectoryEntry<'a>>> {
+    let (_, end) = try_find_end_of_central_directory(input)?;
+    let start = end.offset_start_directory as usize;
+    let end = start + end.size_of_directory as usize;
+    let input = &input[start..end];
+    let (input, entries) = parse_directory_entries(input)?;
+    Ok((input, entries))
 }
 
 #[cfg(test)]

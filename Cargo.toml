@@ -1,6 +1,8 @@
 [workspace]
 
 members = [
+    "zipr",
     "zipr-core",
-    "zipr-parsers"
+    "zipr-parsers",
+    "zipr-cli"
 ]
