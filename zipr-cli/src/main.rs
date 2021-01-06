@@ -1,21 +1,17 @@
-use anyhow::Result;
-use structopt::StructOpt;
+use std::env;
 
+use anyhow::Result;
+mod zipr;
+mod unzip;
 mod list;
 
-#[derive(StructOpt)]
-#[structopt(about = "Manipulate zip files")]
-enum Zipr {
-    #[structopt(about = "List files in a zip file")]
-    List {
-        #[structopt(help = "The file to open")]
-        filename: String,
-    },
-}
+const UNZIP : &str = "unzip";
 
 fn main() -> Result<()> {
-    let opt = Zipr::from_args();
-    match opt {
-        Zipr::List { filename } => list::list_files(&filename),
+    let args: Vec<String> = env::args().collect();
+    let head = args.first().map(String::as_str);
+    match head {
+        Some(UNZIP) => unzip::main(),    
+        _ => zipr::main()
     }
 }
