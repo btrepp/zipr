@@ -34,9 +34,8 @@ pub fn find_local_file_entries<'a>(input: &'a [u8]) -> IResult<&'a [u8], Vec<Loc
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
-
     use nom::Finish;
+    use zipr_core::data::ZipPath;
 
     use super::*;
     #[test]
@@ -49,7 +48,10 @@ mod tests {
 
         assert_eq!(0, rem.len());
         assert_eq!(1, result.len());
-        assert_eq!(Path::new("hello.txt"), result[0].file_name);
+        assert_eq!(
+            ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
+            result[0].file_name
+        );
     }
 
     #[test]
@@ -62,7 +64,13 @@ mod tests {
 
         assert_eq!(0, rem.len());
         assert_eq!(2, result.len());
-        assert_eq!(Path::new("hello.txt"), result[0].file_name);
-        assert_eq!(Path::new("moredata.txt"), result[1].file_name);
+        assert_eq!(
+            ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
+            result[0].file_name
+        );
+        assert_eq!(
+            ZipPath::create_from_bytes("moredata.txt".as_bytes()).unwrap(),
+            result[1].file_name
+        );
     }
 }

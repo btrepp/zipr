@@ -16,7 +16,6 @@ impl<'a> CentralDirectoryEntry<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::path::Path;
 
     use winstructs::timestamp::{DosDate, DosTime, WinTimestamp};
 
@@ -36,7 +35,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: Path::new("hello.txt"),
+            file_name: ZipPath::create_unchecked("hello.txt".into()),
             comment: "",
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::from_u64(132514708162669827),

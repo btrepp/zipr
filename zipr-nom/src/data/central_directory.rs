@@ -7,7 +7,8 @@ use winstructs::timestamp::{DosDate, DosTime};
 use zipr_core::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
 
 use super::{
-    compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
+    compression_method::parse_compression_method, extra_field::parse_extra_field,
+    zip_path::parse_zip_path,
 };
 
 /// Parses a single directory header
@@ -31,7 +32,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
     let (input, external_file_attributes) = le_u32(input)?;
     let (input, relative_offset) = le_u32(input)?;
 
-    let (input, file_name) = map_parser(take(file_name_length), parse_path)(input)?;
+    let (input, file_name) = map_parser(take(file_name_length), parse_zip_path)(input)?;
 
     let (input, extra_field) = map_parser(take(extra_field_length), parse_extra_field)(input)?;
 
@@ -59,11 +60,13 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 #[cfg(test)]
 mod tests {
     use core::panic;
-    use std::path::Path;
 
     use winstructs::timestamp::WinTimestamp;
 
-    use zipr_core::data::extra_field::{ntfs::NTFS, ExtraField};
+    use zipr_core::data::{
+        extra_field::{ntfs::NTFS, ExtraField},
+        ZipPath,
+    };
 
     use super::*;
 
@@ -82,7 +85,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: Path::new("hello.txt"),
+            file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
             comment: "",
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::from_u64(132514708162669827),
@@ -112,7 +115,7 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: Path::new("hello.txt"),
+            file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
             comment: "",
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::new(&[0x1c, 0x52, 0x77, 0x08, 0xd1, 0xcb, 0xd6, 0x01])
@@ -140,6 +143,9 @@ mod tests {
         assert_eq!(0, input.len());
 
         assert_eq!(44, result.relative_offset);
-        assert_eq!(Path::new("moredata.txt"), result.file_name);
+        assert_eq!(
+            ZipPath::create_from_bytes("moredata.txt".as_bytes()).unwrap(),
+            result.file_name
+        );
     }
 }

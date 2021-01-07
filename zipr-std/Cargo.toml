@@ -1,5 +1,5 @@
 [package]
-name = "zipr"
+name = "zipr-std"
 version = "0.1.0"
 authors = ["beau trepp <beautrepp@gmail.com>"]
 edition = "2018"
@@ -8,5 +8,3 @@ edition = "2018"
 
 [dependencies]
 zipr-core = {path="../zipr-core"}
-zipr-nom = {path="../zipr-nom"}
-zipr-std = {path="../zipr-std"}

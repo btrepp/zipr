@@ -4,5 +4,6 @@ members = [
     "zipr",
     "zipr-core",
     "zipr-nom",
-    "zipr-cli"
+    "zipr-cli",
+    "zipr-std"
 ]

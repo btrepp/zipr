@@ -1,12 +1,23 @@
-use std::path::Path;
+use std::{path::Path, str::from_utf8};
 
 use anyhow::Result;
 use comfy_table::Table;
 use nom::{error::Error, Finish};
 use zipr::{
-    core::data::LocalFileEntry,
+    core::data::{LocalFileEntry, ZipPath},
     nom::{find_central_directory_entries, find_end_of_central_directory, find_local_file_entries},
+    std::ToPath,
 };
+
+trait ToString {
+    fn to_string(&self) -> &str;
+}
+
+impl ToString for ZipPath<'_> {
+    fn to_string(&self) -> &str {
+        from_utf8(self.to_bytes()).unwrap()
+    }
+}
 
 fn own_error<T>(e: Error<T>) -> Error<String> {
     Error::new(String::from("Unable to parse"), e.code)
@@ -31,7 +42,7 @@ where
             format!("{}", e.uncompressed_size),
             format!("{}", e.file_modification_date),
             format!("{}", e.file_modification_time),
-            format!("{}", e.file_name.to_string_lossy()),
+            format!("{}", e.file_name.to_string()),
         ];
         total += e.uncompressed_size;
         table.add_row(row);
@@ -74,11 +85,11 @@ pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output:
 
     for entry in entries.iter() {
         let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
-        if files.len() != 0 && !files.contains(&entry.file_name) {
-            println!("Skipping: {}", entry.file_name.to_string_lossy());
+        if files.len() != 0 && !files.contains(&entry.file_name.to_path()) {
+            println!("Skipping: {}", entry.file_name.to_string());
         } else {
             let bytes = extract_bytes(entry)?;
-            let path = output.as_ref().join(entry.file_name);
+            let path = output.as_ref().join(entry.file_name.to_path());
             std::fs::write(path.clone(), bytes)?;
             println!("Extracted: {} ", path.to_string_lossy());
         }

@@ -1,12 +1,14 @@
 //! Pure data structures for zip files
 //! https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 
-use std::path::Path;
+mod compressed_data;
+mod zip_path;
 
 use extra_field::ExtraField;
 use winstructs::timestamp::{DosDate, DosTime};
 pub mod extra_field;
-
+pub use compressed_data::*;
+pub use zip_path::*;
 /// End of central directory header
 /// This appears at the end of the file
 /// Mainly used to tell  where the central directory
@@ -36,7 +38,7 @@ pub struct CentralDirectoryEntry<'a> {
     pub internal_file_attributes: u16,
     pub external_file_attributes: u32,
     pub relative_offset: u32,
-    pub file_name: &'a Path,
+    pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
     pub comment: &'a str,
 }
@@ -51,18 +53,9 @@ pub struct LocalFileEntry<'a> {
     pub general_purpose: u16,
     pub file_modification_time: DosTime,
     pub file_modification_date: DosDate,
-    pub file_name: &'a Path,
+    pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
     pub compressed_data: CompressedData<'a>,
-}
-
-/// Data structure which represents compressed data
-#[derive(Debug, PartialEq)]
-pub struct CompressedData<'a> {
-    bytes: &'a [u8],
-    crc32: u32,
-    uncompressed_size: u32,
-    compression_method: CompressionMethod,
 }
 
 /// Enum describing the compression method
@@ -71,35 +64,4 @@ pub struct CompressedData<'a> {
 pub enum CompressionMethod {
     Stored,
     Deflate,
-}
-
-impl<'a> CompressedData<'a> {
-    pub fn create_unchecked(
-        uncompressed_size: u32,
-        compression_method: CompressionMethod,
-        crc32: u32,
-        bytes: &'a [u8],
-    ) -> Self {
-        CompressedData {
-            uncompressed_size,
-            compression_method,
-            crc32,
-            bytes,
-        }
-    }
-
-    pub fn compression_method(&self) -> CompressionMethod {
-        self.compression_method
-    }
-    pub fn crc32(&self) -> u32 {
-        self.crc32
-    }
-
-    pub fn uncompressed_size(&self) -> u32 {
-        self.uncompressed_size
-    }
-
-    pub fn bytes(&self) -> &'a [u8] {
-        self.bytes
-    }
 }
