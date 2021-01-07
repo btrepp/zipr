@@ -7,19 +7,25 @@ NOTE: Very much alpha. Data structures are most likely designed to change shape.
 
 ## Components
 
-### Zipr
+### zipr
 
 Meta crate making the other crates easier to use
 
-### Zipr-core 
+### zipr-core 
 
 The core data structures. Hopefully this can be re-useable to other crates even if the parsers/serializers aren't.
+Note this is no-std. So is very minimal
 
-### Zipr-nom
+### zipr-nom
 
-Converst [u8] -> to Zipr-core data structures
+Converts [u8] -> to Zipr-core data structures
 
-### Zipr-cli
+### zipr-std
+
+Helper traits and functions to make zipr easier to use if you are in a std environment.
+Eg converts zip paths into Path structures, and converts dos times into chrono based times
+
+### zipr-cli
 
 A cli tool that allows you to manipulate zip files.
 This tool is probably not as useful as existing unzip/zip tools, but it provies examples of how to use some
@@ -35,7 +41,7 @@ Ideally we provide a nice parser so other zip-like formats can use this as a com
 Features that need to be implemented
 - Other compression types from store/deflate
 - Serialization, using cookie-factory
-- no std support, nom + miniz-oxide. Should help the code be super portable
+- no std support for nom, using miniz-oxide. Should help the code be super portable
 - Further refinements of the data types
 - Some more ergonomic functions
 - MMap to speed up the zipr-cli on large files.
@@ -46,3 +52,4 @@ Features that need to be implemented
 - Zipr cli pretends to be unzip if aliased as unzip
 - Most types are implemented in some form
 - Data driven
+- No standard support for core data structures
