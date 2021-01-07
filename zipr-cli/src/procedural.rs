@@ -2,9 +2,15 @@ use std::path::Path;
 
 use anyhow::Result;
 use comfy_table::Table;
-use nom::Finish;
-use zipr::nom::{find_central_directory_entries, find_end_of_central_directory};
+use nom::{error::Error, Finish};
+use zipr::{
+    core::data::LocalFileEntry,
+    nom::{find_central_directory_entries, find_end_of_central_directory, find_local_file_entries},
+};
 
+fn own_error<T>(e: Error<T>) -> Error<String> {
+    Error::new(String::from("Unable to parse"), e.code)
+}
 
 pub fn list_files<P>(path: P) -> Result<()>
 where
@@ -18,7 +24,7 @@ where
     let entries = find_central_directory_entries(&bytes)
         .finish()
         .map(|(_, entries)| entries)
-        .map_err(|e| nom::error::Error::new("Unable to parse", e.code))?;
+        .map_err(own_error)?;
 
     for e in entries.iter() {
         let row = vec![
@@ -41,24 +47,41 @@ where
     Ok(())
 }
 
-
-pub fn show_comment<P>(path:P) -> Result<()>
-where P: AsRef<Path> {
-    let bytes = std::fs::read(path)?;
-    let (_,file) = find_end_of_central_directory(&bytes).finish()
-                                        .map_err(|e| nom::error::Error::new("Unable to parse", e.code))?;
-    println!("{}",file.comment);
-    Ok(())
-}
-
-pub fn extract_files<P>(files: Vec<P>) -> Result<()>
+pub fn show_comment<P>(path: P) -> Result<()>
 where
     P: AsRef<Path>,
 {
-    for path in files {
-        let bytes = std::fs::read(path)?;
-        //let files = try_parse_local_entries(&bytes)
-        //              .finish()
+    let bytes = std::fs::read(path)?;
+    let (_, file) = find_end_of_central_directory(&bytes)
+        .finish()
+        .map_err(own_error)?;
+    println!("{}", file.comment);
+    Ok(())
+}
+
+pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output: P) -> Result<()> {
+    fn extract_bytes<'a>(file: &LocalFileEntry<'a>) -> Result<Vec<u8>> {
+        let (_, vec) = zipr::nom::parse_compressed_data(&file.compressed_data)
+            .finish()
+            .map_err(own_error)?;
+        Ok(vec)
+    }
+
+    let bytes = std::fs::read(file)?;
+    let (_, entries) = find_local_file_entries(&bytes)
+        .finish()
+        .map_err(own_error)?;
+
+    for entry in entries.iter() {
+        let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
+        if files.len() != 0 && !files.contains(&entry.file_name) {
+            println!("Skipping: {}", entry.file_name.to_string_lossy());
+        } else {
+            let bytes = extract_bytes(entry)?;
+            let path = output.as_ref().join(entry.file_name);
+            std::fs::write(path.clone(), bytes)?;
+            println!("Extracted: {} ", path.to_string_lossy());
+        }
     }
     Ok(())
 }

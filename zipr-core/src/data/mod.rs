@@ -49,20 +49,57 @@ pub struct CentralDirectoryEntry<'a> {
 pub struct LocalFileEntry<'a> {
     pub version_needed: u16,
     pub general_purpose: u16,
-    pub compression_method: CompressionMethod,
     pub file_modification_time: DosTime,
     pub file_modification_date: DosDate,
-    pub crc32: u32,
-    pub uncompressed_size: u32,
     pub file_name: &'a Path,
     pub extra_field: ExtraField<'a>,
-    pub bytes: &'a [u8],
+    pub compressed_data: CompressedData<'a>,
+}
+
+/// Data structure which represents compressed data
+#[derive(Debug, PartialEq)]
+pub struct CompressedData<'a> {
+    bytes: &'a [u8],
+    crc32: u32,
+    uncompressed_size: u32,
+    compression_method: CompressionMethod,
 }
 
 /// Enum describing the compression method
 /// note there are many of these. We don't implement them all
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum CompressionMethod {
     Stored,
     Deflate,
+}
+
+impl<'a> CompressedData<'a> {
+    pub fn create_unchecked(
+        uncompressed_size: u32,
+        compression_method: CompressionMethod,
+        crc32: u32,
+        bytes: &'a [u8],
+    ) -> Self {
+        CompressedData {
+            uncompressed_size,
+            compression_method,
+            crc32,
+            bytes,
+        }
+    }
+
+    pub fn compression_method(&self) -> CompressionMethod {
+        self.compression_method
+    }
+    pub fn crc32(&self) -> u32 {
+        self.crc32
+    }
+
+    pub fn uncompressed_size(&self) -> u32 {
+        self.uncompressed_size
+    }
+
+    pub fn bytes(&self) -> &'a [u8] {
+        self.bytes
+    }
 }

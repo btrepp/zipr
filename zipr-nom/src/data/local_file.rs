@@ -4,7 +4,10 @@ use nom::{
 };
 use winstructs::timestamp::{DosDate, DosTime};
 
-use zipr_core::{constants::LOCAL_FILE_HEADER_SIGNATURE, data::LocalFileEntry};
+use zipr_core::{
+    constants::LOCAL_FILE_HEADER_SIGNATURE,
+    data::{CompressedData, LocalFileEntry},
+};
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
@@ -29,33 +32,19 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
 
     let (input, bytes) = take(compressed_size)(input)?;
 
+    let compressed_data =
+        CompressedData::create_unchecked(uncompressed_size, compression_method, crc32, bytes);
     let result = LocalFileEntry {
         version_needed,
         general_purpose,
-        compression_method,
         file_modification_time,
         file_modification_date,
-        crc32,
-        uncompressed_size,
         file_name,
         extra_field,
-        bytes,
+        compressed_data,
     };
     Ok((input, result))
 }
-
-/* pub fn parse_local_file_with_directory(all:&'a [u8], directory: CentralDirectoryEntry) -> IResult<&'a [u8], LocalFileEntry>{
-
-}
-
-pub fn try_parse_local_entries<'a>(input: &'a [u8]) -> IResult<&'a [u8], Vec<LocalFileEntry<'a>>> {
-    let (_, end) = try_parse_entries(input)?;
-    let start = end.offset_start_directory as usize;
-    let end = start + end.size_of_directory as usize;
-    let input = &input[start..end];
-    let (input, entries) = parse__entries(input)?;
-    Ok((input, entries))
-} */
 
 #[cfg(test)]
 mod tests {
@@ -69,17 +58,21 @@ mod tests {
         let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let data = &hello[0..0x2c];
         let result = parse_local_file(data);
+        let compression_method = zipr_core::data::CompressionMethod::Stored;
+        let uncompressed_size = 5;
+        let crc32 = 980881731;
+        let bytes = "world".as_bytes();
+        let compressed_data =
+            CompressedData::create_unchecked(uncompressed_size, compression_method, crc32, bytes);
+
         let expected = LocalFileEntry {
             version_needed: 10,
             general_purpose: 0,
-            compression_method: zipr_core::data::CompressionMethod::Stored,
             file_modification_time: DosTime::new(41164),
             file_modification_date: DosDate::new(20867),
-            crc32: 980881731,
-            uncompressed_size: 5,
             file_name: Path::new("hello.txt"),
             extra_field: ExtraField::Unknown(&[]),
-            bytes: "world".as_bytes(),
+            compressed_data,
         };
 
         assert_eq!(Ok((&[] as &[u8], expected)), result);

@@ -10,9 +10,15 @@ pub enum Opt {
         file: PathBuf,
     },
     #[structopt(about = "Show zip file comment")]
-    ShowComment {
-        file: PathBuf
-    }
+    ShowComment { file: PathBuf },
+    Extract {
+        #[structopt(help = "The file to open")]
+        file: PathBuf,
+        #[structopt(help = "Files to extract (optional)")]
+        files: Vec<PathBuf>,
+        #[structopt(short, long, help = "The output folder", default_value = ".")]
+        output: PathBuf,
+    },
 }
 
 /// Parses the zipr arguments from the command line

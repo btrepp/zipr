@@ -20,6 +20,11 @@ fn main() -> Result<()> {
     // Run logic;
     match opt {
         Opt::List { file } => procedural::list_files(file),
-        Opt::ShowComment { file} => procedural::show_comment(file)
+        Opt::ShowComment { file } => procedural::show_comment(file),
+        Opt::Extract {
+            file,
+            files,
+            output,
+        } => procedural::extract_files(file, files, output),
     }
 }
