@@ -2,11 +2,10 @@ use nom::{
     bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser,
     number::complete::le_u16, number::complete::le_u32, IResult,
 };
-use winstructs::timestamp::{DosDate, DosTime};
 
 use zipr_core::{
     constants::LOCAL_FILE_HEADER_SIGNATURE,
-    data::{CompressedData, LocalFileEntry},
+    data::{CompressedData, DosDate, DosTime, LocalFileEntry},
 };
 
 use super::{
@@ -19,8 +18,8 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
     let (input, version_needed) = le_u16(input)?;
     let (input, general_purpose) = le_u16(input)?;
     let (input, compression_method) = parse_compression_method(input)?;
-    let (input, file_modification_time) = map(le_u16, DosTime::new)(input)?;
-    let (input, file_modification_date) = map(le_u16, DosDate::new)(input)?;
+    let (input, file_modification_time) = map(le_u16, DosTime::from_u16_unchecked)(input)?;
+    let (input, file_modification_date) = map(le_u16, DosDate::from_u16_unchecked)(input)?;
     let (input, crc32) = le_u32(input)?;
     let (input, compressed_size) = le_u32(input)?;
     let (input, uncompressed_size) = le_u32(input)?;
@@ -68,8 +67,8 @@ mod tests {
         let expected = LocalFileEntry {
             version_needed: 10,
             general_purpose: 0,
-            file_modification_time: DosTime::new(41164),
-            file_modification_date: DosDate::new(20867),
+            file_modification_time: DosTime::from_u16_unchecked(41164),
+            file_modification_date: DosDate::from_u16_unchecked(20867),
             file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
             extra_field: ExtraField::Unknown(&[]),
             compressed_data,

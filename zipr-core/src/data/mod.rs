@@ -2,12 +2,15 @@
 //! https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 
 mod compressed_data;
+mod dos_date;
+mod dos_time;
 mod zip_path;
 
 use extra_field::ExtraField;
-use winstructs::timestamp::{DosDate, DosTime};
 pub mod extra_field;
 pub use compressed_data::*;
+pub use dos_date::*;
+pub use dos_time::*;
 pub use zip_path::*;
 /// End of central directory header
 /// This appears at the end of the file

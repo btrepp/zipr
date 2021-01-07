@@ -20,9 +20,7 @@ pub fn parse_extra_field<'a>(input: &'a [u8]) -> IResult<&'a [u8], ExtraField<'a
 #[cfg(test)]
 mod tests {
 
-    use winstructs::timestamp::WinTimestamp;
-
-    use zipr_core::data::extra_field::ntfs::NTFS;
+    use zipr_core::data::extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp};
 
     use super::*;
 
@@ -33,9 +31,9 @@ mod tests {
         let result = parse_extra_field(data);
         let expected = {
             let ntfs = NTFS {
-                atime: WinTimestamp::from_u64(132514708162669827),
-                mtime: WinTimestamp::from_u64(132514707831351075),
-                ctime: WinTimestamp::from_u64(132514707783459448),
+                atime: WinTimestamp::from_u64_unchecked(132514708162669827),
+                mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
+                ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
             };
             ExtraField::NTFS(ntfs)
         };

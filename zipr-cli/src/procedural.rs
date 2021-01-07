@@ -6,7 +6,7 @@ use nom::{error::Error, Finish};
 use zipr::{
     core::data::{LocalFileEntry, ZipPath},
     nom::{find_central_directory_entries, find_end_of_central_directory, find_local_file_entries},
-    std::ToPath,
+    std::{ToNaiveDate, ToNaiveTime, ToPath},
 };
 
 trait ToString {
@@ -40,8 +40,8 @@ where
     for e in entries.iter() {
         let row = vec![
             format!("{}", e.uncompressed_size),
-            format!("{}", e.file_modification_date),
-            format!("{}", e.file_modification_time),
+            format!("{}", e.file_modification_date.to_date()),
+            format!("{}", e.file_modification_time.to_time()),
             format!("{}", e.file_name.to_string()),
         ];
         total += e.uncompressed_size;

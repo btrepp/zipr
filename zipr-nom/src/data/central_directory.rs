@@ -3,8 +3,10 @@ use nom::{
     combinator::map_res, lib::std::str::from_utf8, number::complete::le_u16,
     number::complete::le_u32, IResult,
 };
-use winstructs::timestamp::{DosDate, DosTime};
-use zipr_core::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
+use zipr_core::{
+    constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE,
+    data::{CentralDirectoryEntry, DosDate, DosTime},
+};
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field,
@@ -18,8 +20,8 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
     let (input, version_needed) = le_u16(input)?;
     let (input, general_purpose) = le_u16(input)?;
     let (input, compression_method) = map_parser(take(2u16), parse_compression_method)(input)?;
-    let (input, file_modification_time) = map(le_u16, DosTime::new)(input)?;
-    let (input, file_modification_date) = map(le_u16, DosDate::new)(input)?;
+    let (input, file_modification_time) = map(le_u16, DosTime::from_u16_unchecked)(input)?;
+    let (input, file_modification_date) = map(le_u16, DosDate::from_u16_unchecked)(input)?;
     let (input, crc32) = le_u32(input)?;
     let (input, compressed_size) = le_u32(input)?;
     let (input, uncompressed_size) = le_u32(input)?;
@@ -61,10 +63,8 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 mod tests {
     use core::panic;
 
-    use winstructs::timestamp::WinTimestamp;
-
     use zipr_core::data::{
-        extra_field::{ntfs::NTFS, ExtraField},
+        extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
         ZipPath,
     };
 
@@ -78,8 +78,8 @@ mod tests {
         let expected = CentralDirectoryEntry {
             version_made_by: 63,
             version_needed: 10,
-            file_modification_time: DosTime::new(41164),
-            file_modification_date: DosDate::new(20867),
+            file_modification_time: DosTime::from_u16_unchecked(41164),
+            file_modification_date: DosDate::from_u16_unchecked(20867),
             crc32: 980881731,
             compressed_size: 5,
             uncompressed_size: 5,
@@ -88,9 +88,9 @@ mod tests {
             file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
             comment: "",
             extra_field: ExtraField::NTFS(NTFS {
-                atime: WinTimestamp::from_u64(132514708162669827),
-                mtime: WinTimestamp::from_u64(132514707831351075),
-                ctime: WinTimestamp::from_u64(132514707783459448),
+                atime: WinTimestamp::from_u64_unchecked(132514708162669827),
+                mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
+                ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
             }),
             compression_method: zipr_core::data::CompressionMethod::Stored,
             general_purpose: 0,
@@ -108,8 +108,8 @@ mod tests {
         let expected = CentralDirectoryEntry {
             version_made_by: 63,
             version_needed: 20,
-            file_modification_time: DosTime::new(43312),
-            file_modification_date: DosDate::new(20870),
+            file_modification_time: DosTime::from_u16_unchecked(43312),
+            file_modification_date: DosDate::from_u16_unchecked(20870),
             crc32: 810231625,
             compressed_size: 22,
             uncompressed_size: 215,
@@ -118,12 +118,9 @@ mod tests {
             file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
             comment: "",
             extra_field: ExtraField::NTFS(NTFS {
-                atime: WinTimestamp::new(&[0x1c, 0x52, 0x77, 0x08, 0xd1, 0xcb, 0xd6, 0x01])
-                    .unwrap(),
-                mtime: WinTimestamp::new(&[0x1c, 0x52, 0x77, 0x08, 0xd1, 0xcb, 0xd6, 0x01])
-                    .unwrap(),
-                ctime: WinTimestamp::new(&[0x78, 0xa2, 0xf2, 0xb4, 0x6c, 0xc9, 0xd6, 0x01])
-                    .unwrap(),
+                atime: WinTimestamp::from_u64(132517337704649244).unwrap(),
+                mtime: WinTimestamp::from_u64(132517337704649244).unwrap(),
+                ctime: WinTimestamp::from_u64(132514707783459448).unwrap(),
             }),
             compression_method: zipr_core::data::CompressionMethod::Deflate,
             general_purpose: 0,
