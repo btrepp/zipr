@@ -16,7 +16,7 @@ pub struct EndOfCentralDirectory<'a> {
     pub total_number_records: u16,
     pub size_of_directory: u32,
     pub offset_start_directory: u32,
-    pub comment: &'a [u8],
+    pub comment: &'a str,
 }
 
 /// An entry for a file in the central directory

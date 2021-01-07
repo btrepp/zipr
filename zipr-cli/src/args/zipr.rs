@@ -7,8 +7,12 @@ pub enum Opt {
     #[structopt(about = "List files in a zip file")]
     List {
         #[structopt(help = "The file to open")]
-        files: Vec<PathBuf>,
+        file: PathBuf,
     },
+    #[structopt(about = "Show zip file comment")]
+    ShowComment {
+        file: PathBuf
+    }
 }
 
 /// Parses the zipr arguments from the command line

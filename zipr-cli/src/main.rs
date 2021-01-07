@@ -19,6 +19,7 @@ fn main() -> Result<()> {
 
     // Run logic;
     match opt {
-        Opt::List { files } => procedural::list_files(files),
+        Opt::List { file } => procedural::list_files(file),
+        Opt::ShowComment { file} => procedural::show_comment(file)
     }
 }

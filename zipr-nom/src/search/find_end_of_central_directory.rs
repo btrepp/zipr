@@ -44,7 +44,7 @@ mod tests {
     #[test]
     fn hello_world_store_with_comment() {
         let input = include_bytes!("../../../assets/hello_world_store_with_comment.zip");
-        let comment = "tricky".as_bytes();
+        let comment = "tricky";
         let result = find_end_of_central_directory(input);
         let expected = EndOfCentralDirectory {
             total_number_records: 1,
