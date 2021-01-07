@@ -1,21 +1,18 @@
 use std::path::PathBuf;
-
-use anyhow::Result;
 use structopt::StructOpt;
 
 #[derive(StructOpt)]
 #[structopt(about = "Manipulate zip files")]
-enum Zipr {
+pub enum Opt {
     #[structopt(about = "List files in a zip file")]
     List {
         #[structopt(help = "The file to open")]
-        filename: PathBuf,
+        files: Vec<PathBuf>,
     },
 }
 
-pub fn main() -> Result<()> {
-    let opt = Zipr::from_args();
-    match opt {
-        Zipr::List { filename } => crate::list::list_files(&filename),
-    }
+/// Parses the zipr arguments from the command line
+pub fn parse_args() -> Opt {
+    let opt = Opt::from_args();
+    opt
 }

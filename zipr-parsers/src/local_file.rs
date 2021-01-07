@@ -4,7 +4,12 @@ use nom::{
 };
 use winstructs::timestamp::{DosDate, DosTime};
 
-use zipr_core::{constants::LOCAL_FILE_HEADER_SIGNATURE, data::LocalFileEntry};
+use zipr_core::{
+    constants::LOCAL_FILE_HEADER_SIGNATURE,
+    data::{CentralDirectoryEntry, LocalFileEntry},
+};
+
+use crate::central_directory::try_parse_entries;
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
@@ -43,6 +48,19 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
     };
     Ok((input, result))
 }
+
+/* pub fn parse_local_file_with_directory(all:&'a [u8], directory: CentralDirectoryEntry) -> IResult<&'a [u8], LocalFileEntry>{
+
+}
+
+pub fn try_parse_local_entries<'a>(input: &'a [u8]) -> IResult<&'a [u8], Vec<LocalFileEntry<'a>>> {
+    let (_, end) = try_parse_entries(input)?;
+    let start = end.offset_start_directory as usize;
+    let end = start + end.size_of_directory as usize;
+    let input = &input[start..end];
+    let (input, entries) = parse__entries(input)?;
+    Ok((input, entries))
+} */
 
 #[cfg(test)]
 mod tests {
