@@ -1,17 +1,16 @@
 use nom::{
-    bytes::complete::tag, bytes::complete::take, combinator::eof, combinator::iterator,
-    combinator::map, combinator::map_parser, combinator::map_res, lib::std::str::from_utf8,
-    number::complete::le_u16, number::complete::le_u32, IResult,
+    bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser,
+    combinator::map_res, lib::std::str::from_utf8, number::complete::le_u16,
+    number::complete::le_u32, IResult,
 };
 use winstructs::timestamp::{DosDate, DosTime};
 use zipr_core::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
-
-use super::end_of_central_directory::try_find_end_of_central_directory;
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
 };
 
+/// Parses a single directory header
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {
     let (input, _) = tag(CENTRAL_DIRECTORY_HEADER_SIGNATURE)(input)?;
     let (input, version_made_by) = le_u16(input)?;
@@ -57,31 +56,11 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
     Ok((input, result))
 }
 
-pub fn parse_directory_entries<'a>(
-    input: &'a [u8],
-) -> IResult<&'a [u8], Vec<CentralDirectoryEntry<'a>>> {
-    let mut it = iterator(input, parse_directory_header);
-    let result = it.collect::<Vec<CentralDirectoryEntry<'a>>>();
-    let (input, _) = it.finish()?;
-    let (input, _eof) = eof(input)?;
-    Ok((input, result))
-}
-
-pub fn try_parse_entries<'a>(input: &'a [u8]) -> IResult<&'a [u8], Vec<CentralDirectoryEntry<'a>>> {
-    let (_, end) = try_find_end_of_central_directory(input)?;
-    let start = end.offset_start_directory as usize;
-    let end = start + end.size_of_directory as usize;
-    let input = &input[start..end];
-    let (input, entries) = parse_directory_entries(input)?;
-    Ok((input, entries))
-}
-
 #[cfg(test)]
 mod tests {
     use core::panic;
     use std::path::Path;
 
-    use nom::Finish;
     use winstructs::timestamp::WinTimestamp;
 
     use zipr_core::data::extra_field::{ntfs::NTFS, ExtraField};
@@ -162,32 +141,5 @@ mod tests {
 
         assert_eq!(44, result.relative_offset);
         assert_eq!(Path::new("moredata.txt"), result.file_name);
-    }
-
-    #[test]
-    fn hello_world_store_as_entries() {
-        let hello = include_bytes!("../../../assets/hello_world_store.zip");
-        let data = &hello[0x2c..0x87];
-        let result = parse_directory_entries(data).finish();
-
-        let (rem, result) = result.unwrap();
-
-        assert_eq!(0, rem.len());
-        assert_eq!(1, result.len());
-        assert_eq!(Path::new("hello.txt"), result[0].file_name);
-    }
-
-    #[test]
-    fn two_files_store_as_entries() {
-        let hello = include_bytes!("../../../assets/two_files_store.zip");
-        let data = &hello[0x59..(0x59 + 185)];
-        let result = parse_directory_entries(data).finish();
-
-        let (rem, result) = result.unwrap();
-
-        assert_eq!(0, rem.len());
-        assert_eq!(2, result.len());
-        assert_eq!(Path::new("hello.txt"), result[0].file_name);
-        assert_eq!(Path::new("moredata.txt"), result[1].file_name);
     }
 }

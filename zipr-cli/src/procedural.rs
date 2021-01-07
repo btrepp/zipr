@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Result;
 use comfy_table::Table;
 use nom::Finish;
-use zipr::nom::data::central_directory::try_parse_entries;
+use zipr::nom::find_central_directory_entries;
 
 pub fn list_files<P>(paths: Vec<P>) -> Result<()>
 where
@@ -15,7 +15,7 @@ where
 
     for path in paths {
         let bytes = std::fs::read(path)?;
-        let entries = try_parse_entries(&bytes)
+        let entries = find_central_directory_entries(&bytes)
             .finish()
             .map(|(_, entries)| entries)
             .map_err(|e| nom::error::Error::new("Unable to parse", e.code))?;
