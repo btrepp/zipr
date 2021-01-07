@@ -34,7 +34,7 @@ mod tests {
 
     #[test]
     fn hello_world_store() {
-        let hello = include_bytes!("../../assets/hello_world_store.zip");
+        let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let data = &hello[0x63..0x87];
         let result = parse_ntfs(data);
         let expected = NTFS {

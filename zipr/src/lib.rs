@@ -1,2 +1,2 @@
 pub use zipr_core as core;
-pub use zipr_parsers as parsers;
+pub use zipr_nom as nom;

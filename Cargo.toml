@@ -3,6 +3,6 @@
 members = [
     "zipr",
     "zipr-core",
-    "zipr-parsers",
+    "zipr-nom",
     "zipr-cli"
 ]

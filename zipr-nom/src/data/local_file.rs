@@ -4,12 +4,7 @@ use nom::{
 };
 use winstructs::timestamp::{DosDate, DosTime};
 
-use zipr_core::{
-    constants::LOCAL_FILE_HEADER_SIGNATURE,
-    data::{CentralDirectoryEntry, LocalFileEntry},
-};
-
-use crate::central_directory::try_parse_entries;
+use zipr_core::{constants::LOCAL_FILE_HEADER_SIGNATURE, data::LocalFileEntry};
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
@@ -71,7 +66,7 @@ mod tests {
     use super::*;
     #[test]
     fn hello_world_store() {
-        let hello = include_bytes!("../../assets/hello_world_store.zip");
+        let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let data = &hello[0..0x2c];
         let result = parse_local_file(data);
         let expected = LocalFileEntry {

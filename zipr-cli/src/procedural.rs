@@ -3,7 +3,7 @@ use std::path::Path;
 use anyhow::Result;
 use comfy_table::Table;
 use nom::Finish;
-use zipr::parsers::central_directory::try_parse_entries;
+use zipr::nom::data::central_directory::try_parse_entries;
 
 pub fn list_files<P>(paths: Vec<P>) -> Result<()>
 where

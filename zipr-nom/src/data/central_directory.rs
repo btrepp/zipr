@@ -6,7 +6,7 @@ use nom::{
 use winstructs::timestamp::{DosDate, DosTime};
 use zipr_core::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::CentralDirectoryEntry};
 
-use crate::end_of_central_directory::try_find_end_of_central_directory;
+use super::end_of_central_directory::try_find_end_of_central_directory;
 
 use super::{
     compression_method::parse_compression_method, extra_field::parse_extra_field, path::parse_path,
@@ -90,7 +90,7 @@ mod tests {
 
     #[test]
     fn hello_world_store() {
-        let hello = include_bytes!("../../assets/hello_world_store.zip");
+        let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let data = &hello[0x2c..0x87];
         let result = parse_directory_header(data);
         let expected = CentralDirectoryEntry {
@@ -120,7 +120,7 @@ mod tests {
 
     #[test]
     fn hello_world_deflate() {
-        let hello = include_bytes!("../../assets/hello_world_deflate.zip");
+        let hello = include_bytes!("../../../assets/hello_world_deflate.zip");
         let data = &hello[0x3d..0x3d + 91];
         let result = parse_directory_header(data);
         let expected = CentralDirectoryEntry {
@@ -152,7 +152,7 @@ mod tests {
 
     #[test]
     fn two_file_store() {
-        let hello = include_bytes!("../../assets/two_files_store.zip");
+        let hello = include_bytes!("../../../assets/two_files_store.zip");
         let data = &hello[0xb4..(0x59 + 185)];
         let result = parse_directory_header(data);
 
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn hello_world_store_as_entries() {
-        let hello = include_bytes!("../../assets/hello_world_store.zip");
+        let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let data = &hello[0x2c..0x87];
         let result = parse_directory_entries(data).finish();
 
@@ -179,7 +179,7 @@ mod tests {
 
     #[test]
     fn two_files_store_as_entries() {
-        let hello = include_bytes!("../../assets/two_files_store.zip");
+        let hello = include_bytes!("../../../assets/two_files_store.zip");
         let data = &hello[0x59..(0x59 + 185)];
         let result = parse_directory_entries(data).finish();
 

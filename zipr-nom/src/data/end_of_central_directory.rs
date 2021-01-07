@@ -76,7 +76,7 @@ mod tests {
 
     #[test]
     fn hello_world_store() {
-        let hello = include_bytes!("../../assets/hello_world_store.zip");
+        let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let header = {
             let len = hello.len();
             &hello[len - END_OF_CENTRAL_DIRECTORY_MIN_SIZE..len]
@@ -94,7 +94,7 @@ mod tests {
 
     #[test]
     fn hello_world_store_without_position() {
-        let input = include_bytes!("../../assets/hello_world_store.zip");
+        let input = include_bytes!("../../../assets/hello_world_store.zip");
         let result = try_find_end_of_central_directory(input);
         let expected = EndOfCentralDirectory {
             total_number_records: 1,
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn hello_world_store_with_comment() {
-        let input = include_bytes!("../../assets/hello_world_store_with_comment.zip");
+        let input = include_bytes!("../../../assets/hello_world_store_with_comment.zip");
         let comment = "tricky".as_bytes();
         let result = try_find_end_of_central_directory(input);
         let expected = EndOfCentralDirectory {
@@ -123,7 +123,7 @@ mod tests {
 
     #[test]
     fn two_files_store() {
-        let hello = include_bytes!("../../assets/two_files_store.zip");
+        let hello = include_bytes!("../../../assets/two_files_store.zip");
         let header = {
             let len = hello.len();
             &hello[len - END_OF_CENTRAL_DIRECTORY_MIN_SIZE..len]
