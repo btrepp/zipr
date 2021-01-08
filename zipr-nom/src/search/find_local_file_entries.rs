@@ -1,6 +1,6 @@
+use alloc::vec::Vec;
 use nom::IResult;
 use zipr_core::data::{CentralDirectoryEntry, LocalFileEntry};
-use alloc::vec::Vec;
 
 use crate::data::parse_local_file;
 
@@ -20,7 +20,7 @@ fn local_entry<'a>(
 /// Given the full file. Finds all the local file entries
 /// Note this uses the central directory header to find the locations.
 /// So both must be valid/non-corrupt    
-pub fn find_local_file_entries<'a>(input: &'a [u8]) -> IResult<&'a [u8], Vec<LocalFileEntry<'a>>> {
+pub fn find_local_file_entries(input: &[u8]) -> IResult<&[u8], Vec<LocalFileEntry<'_>>> {
     let (_, directories) = find_central_directory_entries(input)?;
 
     // There should be a way to nicely do this with iterators, but trouble finding

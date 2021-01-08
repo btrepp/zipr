@@ -1,13 +1,16 @@
 use nom::{
-    bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser, number::complete::le_u16,
-    number::complete::le_u32, IResult,
+    bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser,
+    number::complete::le_u16, number::complete::le_u32, IResult,
 };
 use zipr_core::{
     constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE,
     data::{CentralDirectoryEntry, DosDate, DosTime},
 };
 
-use super::{ascii_char::parse_ascii_chars, compression_method::parse_compression_method, extra_field::parse_extra_field, zip_path::parse_zip_path};
+use super::{
+    ascii_char::parse_ascii_chars, compression_method::parse_compression_method,
+    extra_field::parse_extra_field, zip_path::parse_zip_path,
+};
 
 /// Parses a single directory header
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {

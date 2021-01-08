@@ -10,12 +10,12 @@ use zipr::{
 };
 
 trait ToString {
-    fn to_string(&self) -> &str;
+    fn to_string(&self) -> String;
 }
 
 impl ToString for ZipPath<'_> {
-    fn to_string(&self) -> &str {
-        from_utf8(self.to_bytes()).unwrap()
+    fn to_string(&self) -> String {
+        from_utf8(self.to_bytes()).unwrap().to_string()
     }
 }
 
@@ -42,7 +42,7 @@ where
             format!("{}", e.uncompressed_size),
             format!("{}", e.file_modification_date.to_date()),
             format!("{}", e.file_modification_time.to_time()),
-            format!("{}", e.file_name.to_string()),
+            e.file_name.to_string(),
         ];
         total += e.uncompressed_size;
         table.add_row(row);
@@ -66,12 +66,12 @@ where
     let (_, file) = find_end_of_central_directory(&bytes)
         .finish()
         .map_err(own_error)?;
-    println!("{}", file.comment);
+    println!("{}", file.comment.to_string());
     Ok(())
 }
 
 pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output: P) -> Result<()> {
-    fn extract_bytes<'a>(file: &LocalFileEntry<'a>) -> Result<Vec<u8>> {
+    fn extract_bytes(file: &LocalFileEntry<'_>) -> Result<Vec<u8>> {
         let (_, vec) = zipr::nom::parse_compressed_data(&file.compressed_data)
             .finish()
             .map_err(own_error)?;
@@ -85,7 +85,7 @@ pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output:
 
     for entry in entries.iter() {
         let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
-        if files.len() != 0 && !files.contains(&entry.file_name.to_path()) {
+        if !files.is_empty() && !files.contains(&entry.file_name.to_path()) {
             println!("Skipping: {}", entry.file_name.to_string());
         } else {
             let bytes = extract_bytes(entry)?;

@@ -1,7 +1,14 @@
 use zipr_core::constants::END_OF_CENTRAL_DIRECTORY_HEADER;
 use zipr_core::data::EndOfCentralDirectory;
 
-use nom::{IResult, bytes::complete::tag, bytes::complete::take, combinator::{eof, map_parser}, number::complete::le_u16, number::complete::le_u32};
+use nom::{
+    bytes::complete::tag,
+    bytes::complete::take,
+    combinator::{eof, map_parser},
+    number::complete::le_u16,
+    number::complete::le_u32,
+    IResult,
+};
 
 use super::ascii_char::parse_ascii_chars;
 
