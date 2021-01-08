@@ -18,7 +18,7 @@ pub use zip_path::*;
 /// This appears at the end of the file
 /// Mainly used to tell  where the central directory
 /// starts
-#[derive(Debug, PartialEq,Default)]
+#[derive(Debug, PartialEq, Default)]
 pub struct EndOfCentralDirectory<'a> {
     pub total_number_records: u16,
     pub size_of_directory: u32,
