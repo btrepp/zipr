@@ -4,7 +4,7 @@ use nom::{
 };
 use zipr_core::{
     constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE,
-    data::{CentralDirectoryEntry, DosDate, DosTime},
+    data::{file::CentralDirectoryEntry, DosDate, DosTime},
 };
 
 use super::{

@@ -1,10 +1,10 @@
 use alloc::vec::Vec;
-use miniz_oxide::inflate::TINFLStatus;
-use zipr_core::data::CompressedData;
 use crc::crc32;
+use miniz_oxide::inflate::TINFLStatus;
+use zipr_core::data::file::CompressedData;
 #[derive(Debug)]
 pub enum DecompressError {
-    InvalidCrc(u32,u32),
+    InvalidCrc(u32, u32),
     UnhandledCompressionMethod,
     Miniz(TINFLStatus),
 }
@@ -27,10 +27,11 @@ impl DecompressToVec for CompressedData<'_> {
         }?;
 
         let crc = crc32::checksum_ieee(&bytes);
+
         if crc == self.crc32() {
             Ok(bytes)
         } else {
-            Err(DecompressError::InvalidCrc(self.crc32(),crc))
+            Err(DecompressError::InvalidCrc(self.crc32(), crc))
         }
     }
 }

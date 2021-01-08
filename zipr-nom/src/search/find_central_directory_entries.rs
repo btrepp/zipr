@@ -3,7 +3,7 @@ use nom::{
     combinator::{eof, iterator},
     IResult,
 };
-use zipr_core::data::CentralDirectoryEntry;
+use zipr_core::data::file::CentralDirectoryEntry;
 
 use crate::data::parse_directory_header;
 

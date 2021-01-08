@@ -5,7 +5,7 @@ use comfy_table::Table;
 use nom::{error::Error, Finish};
 use zipr::{
     compression::{DecompressError, DecompressToVec},
-    core::data::{CompressionMethod, LocalFileEntry, ZipPath},
+    core::data::{file::LocalFileEntry, CompressionMethod, ZipPath},
     nom::{find_central_directory_entries, find_end_of_central_directory, find_local_file_entries},
     std::{ToNaiveDate, ToNaiveTime, ToPath},
 };

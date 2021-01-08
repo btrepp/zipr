@@ -5,7 +5,7 @@ use nom::{
 
 use zipr_core::{
     constants::LOCAL_FILE_HEADER_SIGNATURE,
-    data::{CompressedData, DosDate, DosTime, LocalFileEntry},
+    data::{file::CompressedData, file::LocalFileEntry, DosDate, DosTime},
 };
 
 use super::{
