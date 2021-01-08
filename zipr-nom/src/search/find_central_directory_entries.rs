@@ -19,9 +19,9 @@ fn parse_directory_entries<'a>(
     Ok((input, result))
 }
 
-pub fn find_central_directory_entries<'a>(
-    input: &'a [u8],
-) -> IResult<&'a [u8], Vec<CentralDirectoryEntry<'a>>> {
+pub fn find_central_directory_entries(
+    input: &[u8],
+) -> IResult<&[u8], Vec<CentralDirectoryEntry<'_>>> {
     let (_, end) = find_end_of_central_directory(input)?;
     let start = end.offset_start_directory as usize;
     let end = start + end.size_of_directory as usize;

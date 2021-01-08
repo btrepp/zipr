@@ -12,13 +12,12 @@ pub fn find_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCentra
 
     for (index, _) in start.iter().rev().enumerate() {
         let input = &input[index..length];
-        match parse_end_of_central_directory(input) {
-            Ok(result) => return Ok(result),
-            Err(_) => (),
+        if let Ok(result) = parse_end_of_central_directory(input) {
+            return Ok(result);
         }
     }
 
-    return parse_end_of_central_directory(input);
+    parse_end_of_central_directory(input)
 }
 
 #[cfg(test)]

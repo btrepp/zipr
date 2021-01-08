@@ -3,7 +3,7 @@ use nom::IResult;
 /// Parses out the data if it's stored data.
 /// Literally is the id function
 /// Consumes all the data
-pub fn parse_store<'a>(input: &'a [u8]) -> IResult<&'a [u8], &'a [u8]> {
+pub fn parse_store(input: &[u8]) -> IResult<&[u8], &[u8]> {
     Ok((&[] as &[u8], input))
 }
 

@@ -6,7 +6,7 @@ use super::ntfs::parse_ntfs;
 
 /// Uses alternatives to try and pass the extra field.
 /// Will return one of the datatypes, or fail
-pub fn parse_extra_field<'a>(input: &'a [u8]) -> IResult<&'a [u8], ExtraField<'a>> {
+pub fn parse_extra_field(input: &[u8]) -> IResult<&[u8], ExtraField<'_>> {
     let ntfs = map(parse_ntfs, ExtraField::NTFS);
     let unknown = {
         let len = input.len();

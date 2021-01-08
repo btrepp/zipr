@@ -23,6 +23,5 @@ pub enum Opt {
 
 /// Parses the zipr arguments from the command line
 pub fn parse_args() -> Opt {
-    let opt = Opt::from_args();
-    opt
+    Opt::from_args()
 }
