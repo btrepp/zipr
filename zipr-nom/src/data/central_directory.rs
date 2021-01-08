@@ -1,6 +1,5 @@
 use nom::{
-    bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser,
-    combinator::map_res, lib::std::str::from_utf8, number::complete::le_u16,
+    bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser, number::complete::le_u16,
     number::complete::le_u32, IResult,
 };
 use zipr_core::{
@@ -8,10 +7,7 @@ use zipr_core::{
     data::{CentralDirectoryEntry, DosDate, DosTime},
 };
 
-use super::{
-    compression_method::parse_compression_method, extra_field::parse_extra_field,
-    zip_path::parse_zip_path,
-};
+use super::{ascii_char::parse_ascii_chars, compression_method::parse_compression_method, extra_field::parse_extra_field, zip_path::parse_zip_path};
 
 /// Parses a single directory header
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {
@@ -38,7 +34,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 
     let (input, extra_field) = map_parser(take(extra_field_length), parse_extra_field)(input)?;
 
-    let (input, comment) = map_res(take(comment_length), from_utf8)(input)?;
+    let (input, comment) = map_parser(take(comment_length), parse_ascii_chars)(input)?;
     let result = CentralDirectoryEntry {
         version_made_by,
         version_needed,
@@ -63,6 +59,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 mod tests {
     use core::panic;
 
+    use ascii::AsciiStr;
     use zipr_core::data::{
         extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
         ZipPath,
@@ -86,7 +83,7 @@ mod tests {
             internal_file_attributes: 0,
             external_file_attributes: 32,
             file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
-            comment: "",
+            comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::from_u64_unchecked(132514708162669827),
                 mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
@@ -116,7 +113,7 @@ mod tests {
             internal_file_attributes: 0,
             external_file_attributes: 32,
             file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
-            comment: "",
+            comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::from_u64(132517337704649244).unwrap(),
                 mtime: WinTimestamp::from_u64(132517337704649244).unwrap(),

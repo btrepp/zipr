@@ -6,22 +6,24 @@ mod dos_date;
 mod dos_time;
 mod zip_path;
 
+pub use ascii::AsciiStr;
 use extra_field::ExtraField;
 pub mod extra_field;
 pub use compressed_data::*;
 pub use dos_date::*;
 pub use dos_time::*;
 pub use zip_path::*;
+
 /// End of central directory header
 /// This appears at the end of the file
 /// Mainly used to tell  where the central directory
 /// starts
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq,Default)]
 pub struct EndOfCentralDirectory<'a> {
     pub total_number_records: u16,
     pub size_of_directory: u32,
     pub offset_start_directory: u32,
-    pub comment: &'a str,
+    pub comment: &'a AsciiStr,
 }
 
 /// An entry for a file in the central directory
@@ -43,7 +45,7 @@ pub struct CentralDirectoryEntry<'a> {
     pub relative_offset: u32,
     pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
-    pub comment: &'a str,
+    pub comment: &'a AsciiStr,
 }
 
 /// The local file description
