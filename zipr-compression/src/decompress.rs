@@ -1,10 +1,10 @@
 use alloc::vec::Vec;
 use miniz_oxide::inflate::TINFLStatus;
 use zipr_core::data::CompressedData;
-
+use crc::crc32;
 #[derive(Debug)]
 pub enum DecompressError {
-    InvalidCrc,
+    InvalidCrc(u32,u32),
     UnhandledCompressionMethod,
     Miniz(TINFLStatus),
 }
@@ -15,7 +15,7 @@ pub trait DecompressToVec {
 impl DecompressToVec for CompressedData<'_> {
     fn decompress_to_vec(&self) -> Result<Vec<u8>, DecompressError> {
         let method = self.compression_method();
-        match method {
+        let bytes = match method {
             zipr_core::data::CompressionMethod::Stored => Ok(Vec::from(self.bytes())),
             zipr_core::data::CompressionMethod::Deflate => {
                 let vec = miniz_oxide::inflate::decompress_to_vec(self.bytes());
@@ -24,6 +24,13 @@ impl DecompressToVec for CompressedData<'_> {
                     Err(tinfl) => Err(DecompressError::Miniz(tinfl)),
                 }
             }
+        }?;
+
+        let crc = crc32::checksum_ieee(&bytes);
+        if crc == self.crc32() {
+            Ok(bytes)
+        } else {
+            Err(DecompressError::InvalidCrc(self.crc32(),crc))
         }
     }
 }
@@ -44,7 +51,7 @@ mod tests {
         let data_end = data_start + deflated_size;
         let data = &hello[data_start..data_end];
         let uncompressed_size = 100;
-        let crc32 = 0;
+        let crc32 = 810231625;
         let compresseddata = CompressedData::create_unchecked(
             uncompressed_size,
             zipr_core::data::CompressionMethod::Deflate,
