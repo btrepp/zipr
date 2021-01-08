@@ -1,15 +1,11 @@
-use flate2::bufread::DeflateDecoder;
 use nom::{bytes::complete::take, combinator::map_res, IResult};
-use std::io::prelude::*;
-
+use miniz_oxide::inflate::decompress_to_vec;
+use alloc::vec::Vec;
 /// Parses out the data if it's deflat
 /// uses flate2 internaly
 pub fn parse_deflate<'a>(input: &'a [u8]) -> IResult<&'a [u8], Vec<u8>> {
-    let decode = |bytes: &'a [u8]| -> Result<Vec<u8>, std::io::Error> {
-        let mut decoder = DeflateDecoder::new(bytes);
-        let mut buf = Vec::new();
-        decoder.read_to_end(&mut buf)?;
-        Ok(buf)
+    let decode = |bytes: &'a [u8]| -> Result<Vec<u8>,_> {
+        decompress_to_vec(bytes)
     };
     let (input, result) = map_res(take(input.len()), decode)(input)?;
 

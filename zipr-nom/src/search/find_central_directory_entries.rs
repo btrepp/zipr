@@ -3,6 +3,7 @@ use nom::{
     IResult,
 };
 use zipr_core::data::CentralDirectoryEntry;
+use alloc::vec::Vec;
 
 use crate::data::parse_directory_header;
 

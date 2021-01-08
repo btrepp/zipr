@@ -5,6 +5,7 @@ pub use deflate::parse_deflate;
 use nom::{combinator::into, error::Error, IResult};
 pub use store::parse_store;
 use zipr_core::data::{CompressedData, CompressionMethod};
+use alloc::vec::Vec;
 
 pub fn parse_compressed_data<'a>(
     input: &'a CompressedData<'a>,

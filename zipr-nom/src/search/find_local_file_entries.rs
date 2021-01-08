@@ -1,5 +1,6 @@
 use nom::IResult;
 use zipr_core::data::{CentralDirectoryEntry, LocalFileEntry};
+use alloc::vec::Vec;
 
 use crate::data::parse_local_file;
 

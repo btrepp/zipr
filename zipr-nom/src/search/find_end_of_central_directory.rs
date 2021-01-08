@@ -23,6 +23,7 @@ pub fn find_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCentra
 
 #[cfg(test)]
 mod tests {
+    use ascii::AsciiStr;
     use zipr_core::data::EndOfCentralDirectory;
 
     use super::find_end_of_central_directory;
@@ -44,7 +45,7 @@ mod tests {
     #[test]
     fn hello_world_store_with_comment() {
         let input = include_bytes!("../../../assets/hello_world_store_with_comment.zip");
-        let comment = "tricky";
+        let comment = AsciiStr::from_ascii("tricky").unwrap();
         let result = find_end_of_central_directory(input);
         let expected = EndOfCentralDirectory {
             total_number_records: 1,

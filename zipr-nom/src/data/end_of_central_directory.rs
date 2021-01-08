@@ -1,15 +1,9 @@
-use std::str::from_utf8;
 use zipr_core::constants::END_OF_CENTRAL_DIRECTORY_HEADER;
 use zipr_core::data::EndOfCentralDirectory;
 
-use nom::{
-    bytes::complete::tag,
-    bytes::complete::take,
-    combinator::{eof, map_res},
-    number::complete::le_u16,
-    number::complete::le_u32,
-    IResult,
-};
+use nom::{IResult, bytes::complete::tag, bytes::complete::take, combinator::{eof, map_parser}, number::complete::le_u16, number::complete::le_u32};
+
+use super::ascii_char::parse_ascii_chars;
 
 /// Parses the end of central directory record exactly
 /// Fails if its not present
@@ -24,7 +18,7 @@ pub fn parse_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCentr
     let (input, size_of_directory) = le_u32(input)?;
     let (input, offset_start_directory) = le_u32(input)?;
     let (input, comment_length) = le_u16(input)?;
-    let (input, comment) = map_res(take(comment_length), from_utf8)(input)?;
+    let (input, comment) = map_parser(take(comment_length), parse_ascii_chars)(input)?;
     let (input, _eof) = eof(input)?;
     let result = EndOfCentralDirectory {
         total_number_records,
