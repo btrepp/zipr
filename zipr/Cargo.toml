@@ -10,3 +10,4 @@ edition = "2018"
 zipr-core = {path="../zipr-core"}
 zipr-nom = {path="../zipr-nom"}
 zipr-std = {path="../zipr-std"}
+zipr-compression = {path="../zipr-compression"}

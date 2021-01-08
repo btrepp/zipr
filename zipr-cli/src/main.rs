@@ -26,5 +26,10 @@ fn main() -> Result<()> {
             files,
             output,
         } => procedural::extract_files(file, files, output),
+        Opt::Add {
+            file,
+            files,
+            compress,
+        } => procedural::add_files(file, files, compress),
     }
 }

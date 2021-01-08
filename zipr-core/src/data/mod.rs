@@ -2,6 +2,7 @@
 //! https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 
 mod compressed_data;
+mod compression_method;
 mod dos_date;
 mod dos_time;
 mod zip_path;
@@ -10,6 +11,7 @@ pub use ascii::AsciiStr;
 use extra_field::ExtraField;
 pub mod extra_field;
 pub use compressed_data::*;
+pub use compression_method::*;
 pub use dos_date::*;
 pub use dos_time::*;
 pub use zip_path::*;
@@ -61,12 +63,4 @@ pub struct LocalFileEntry<'a> {
     pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
     pub compressed_data: CompressedData<'a>,
-}
-
-/// Enum describing the compression method
-/// note there are many of these. We don't implement them all
-#[derive(Debug, PartialEq, Clone, Copy)]
-pub enum CompressionMethod {
-    Stored,
-    Deflate,
 }

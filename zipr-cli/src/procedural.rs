@@ -1,10 +1,11 @@
-use std::{path::Path, str::from_utf8};
+use std::{fmt::Display, path::Path, str::from_utf8};
 
 use anyhow::Result;
 use comfy_table::Table;
 use nom::{error::Error, Finish};
 use zipr::{
-    core::data::{LocalFileEntry, ZipPath},
+    compression::{DecompressError, DecompressToVec},
+    core::data::{CompressionMethod, LocalFileEntry, ZipPath},
     nom::{find_central_directory_entries, find_end_of_central_directory, find_local_file_entries},
     std::{ToNaiveDate, ToNaiveTime, ToPath},
 };
@@ -22,6 +23,18 @@ impl ToString for ZipPath<'_> {
 fn own_error<T>(e: Error<T>) -> Error<String> {
     Error::new(String::from("Unable to parse"), e.code)
 }
+#[derive(Debug)]
+enum AppError {
+    Decompression(DecompressError),
+}
+
+impl Display for AppError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{:?}", self))
+    }
+}
+
+impl std::error::Error for AppError {}
 
 pub fn list_files<P>(path: P) -> Result<()>
 where
@@ -72,10 +85,11 @@ where
 
 pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output: P) -> Result<()> {
     fn extract_bytes(file: &LocalFileEntry<'_>) -> Result<Vec<u8>> {
-        let (_, vec) = zipr::nom::parse_compressed_data(&file.compressed_data)
-            .finish()
-            .map_err(own_error)?;
-        Ok(vec)
+        let bytes = file
+            .compressed_data
+            .decompress_to_vec()
+            .map_err(AppError::Decompression)?;
+        Ok(bytes)
     }
 
     let bytes = std::fs::read(file)?;
@@ -94,5 +108,43 @@ pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output:
             println!("Extracted: {} ", path.to_string_lossy());
         }
     }
+    Ok(())
+}
+
+pub fn add_files<P: AsRef<Path>>(
+    file: P,
+    files: Vec<P>,
+    _compression: CompressionMethod,
+) -> Result<()> {
+    let path = file.as_ref();
+    let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
+    println!("{}", path.to_string_lossy());
+
+    // Get the input bytes
+    let bytes = if path.exists() {
+        std::fs::read(path)?
+    } else {
+        Vec::new()
+    };
+
+    // At its core we need existing entries to determine what entries to store
+    let entries = if path.exists() {
+        let (_, entries) = find_local_file_entries(&bytes)
+            .finish()
+            .map_err(own_error)?;
+        entries
+    } else {
+        Vec::new()
+    };
+
+    // Filter out the entries that we already have
+    let existing: Vec<LocalFileEntry> = entries
+        .into_iter()
+        .filter(|x| !files.contains(&x.file_name.to_path()))
+        .collect();
+
+    // convert files into LocalFileEntry using deflate
+    println!("{:?}", existing);
+
     Ok(())
 }

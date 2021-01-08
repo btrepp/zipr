@@ -20,6 +20,12 @@ Note this is no-std. So is very minimal
 
 Converts [u8] -> to Zipr-core data structures
 
+### zipr-compression
+
+Crate repsonsible for decompressing and compressing to CompressedData<'a> data structures.
+The library is somewhat useable without this, assuming you provide you own implementations 
+for compression.
+
 ### zipr-std
 
 Helper traits and functions to make zipr easier to use if you are in a std environment.
