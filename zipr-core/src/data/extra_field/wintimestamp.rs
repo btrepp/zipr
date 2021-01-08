@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct WinTimestamp(u64);
 #[derive(Debug)]
 pub struct WinTimestampError();

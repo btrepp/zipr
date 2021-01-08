@@ -8,7 +8,7 @@ pub mod wintimestamp;
 /// the slice
 /// https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 /// 4.5 Extensible data fields
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ExtraField<'a> {
     NTFS(NTFS),
     Unknown(&'a [u8]),

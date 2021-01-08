@@ -48,6 +48,7 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
 
 #[cfg(test)]
 mod tests {
+    use ascii::AsAsciiStr;
     use core::panic;
     use zipr_core::data::{extra_field::ExtraField, ZipPath};
 
@@ -69,7 +70,7 @@ mod tests {
             general_purpose: 0,
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),
-            file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
+            file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             extra_field: ExtraField::Unknown(&[]),
             compressed_data,
         };

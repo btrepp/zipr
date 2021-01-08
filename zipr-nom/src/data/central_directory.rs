@@ -62,7 +62,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 mod tests {
     use core::panic;
 
-    use ascii::AsciiStr;
+    use ascii::{AsAsciiStr, AsciiStr};
     use zipr_core::data::{
         extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
         ZipPath,
@@ -85,7 +85,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
+            file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::from_u64_unchecked(132514708162669827),
@@ -115,7 +115,7 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
+            file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: WinTimestamp::from_u64(132517337704649244).unwrap(),
@@ -141,7 +141,7 @@ mod tests {
 
         assert_eq!(44, result.relative_offset);
         assert_eq!(
-            ZipPath::create_from_bytes("moredata.txt".as_bytes()).unwrap(),
+            ZipPath::create_from_string("moredata.txt".as_ascii_str().unwrap()).unwrap(),
             result.file_name
         );
     }
