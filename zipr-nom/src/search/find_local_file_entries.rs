@@ -6,7 +6,7 @@ use crate::data::parse_local_file;
 
 use super::find_central_directory_entries;
 
-fn local_entry<'a>(
+pub fn local_entry<'a>(
     full_file: &'a [u8],
     directory: &CentralDirectoryEntry,
 ) -> IResult<&'a [u8], LocalFileEntry<'a>> {

@@ -1,12 +1,12 @@
-use std::{fmt::Display, path::Path, str::from_utf8};
-
+use super::sequence::Sequence;
 use anyhow::Result;
 use comfy_table::Table;
 use nom::{error::Error, Finish};
+use std::{fmt::Display, path::Path, str::from_utf8};
 use zipr::{
     compression::{DecompressError, DecompressToVec},
-    core::data::{file::LocalFileEntry, CompressionMethod, ZipPath},
-    nom::{find_central_directory_entries, find_end_of_central_directory, find_local_file_entries},
+    core::data::{file::LocalFileEntry, CompressionMethod, ZipEntry, ZipPath},
+    nom::{find_end_of_central_directory, find_local_file_entries, iter::ZipEntryIteratorError},
     std::{ToNaiveDate, ToNaiveTime, ToPath},
 };
 
@@ -26,6 +26,13 @@ fn own_error<T>(e: Error<T>) -> Error<String> {
 #[derive(Debug)]
 enum AppError {
     Decompression(DecompressError),
+    Iterator,
+}
+
+impl From<ZipEntryIteratorError<'_>> for AppError {
+    fn from(_: ZipEntryIteratorError<'_>) -> Self {
+        AppError::Iterator
+    }
 }
 
 impl Display for AppError {
@@ -45,19 +52,21 @@ where
     table.set_header(vec!["Length", "Date", "Time", "Name"]);
 
     let bytes = std::fs::read(path)?;
-    let entries = find_central_directory_entries(&bytes)
-        .finish()
-        .map(|(_, entries)| entries)
-        .map_err(own_error)?;
+
+    let entries: Result<Vec<ZipEntry<'_>>, AppError> = zipr::nom::iter::zip_entry_iter(&bytes)
+        .sequence()
+        .map_err(|e| e.into());
+
+    let entries = entries?;
 
     for e in entries.iter() {
         let row = vec![
-            format!("{}", e.uncompressed_size),
+            format!("{}", e.compressed_data.uncompressed_size()),
             format!("{}", e.file_modification_date.to_date()),
             format!("{}", e.file_modification_time.to_time()),
             e.file_name.to_string(),
         ];
-        total += e.uncompressed_size;
+        total += e.compressed_data.uncompressed_size();
         table.add_row(row);
     }
     table.add_row(vec![

@@ -9,7 +9,7 @@ use crate::data::{
 /// so the local entry is only used to get the zip data
 /// see ZipEntry
 pub fn make_zip_entry<'a>(
-    central: CentralDirectoryEntry<'a>,
+    central: &CentralDirectoryEntry<'a>,
     local: LocalFileEntry<'a>,
 ) -> ZipEntry<'a> {
     let version_made_by = central.version_made_by;

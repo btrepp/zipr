@@ -1,5 +1,6 @@
 mod args;
 mod procedural;
+mod sequence;
 use anyhow::Result;
 use args::zipr::Opt;
 use std::env;
