@@ -4,15 +4,10 @@ use crate::{
 };
 use super::sequence::Sequence;
 use anyhow::Result;
+use ascii::AsAsciiStr;
 use nom::Finish;
 use std::path::Path;
-use zipr::{
-    compression::DecompressToVec,
-    core::data::{file::LocalFileEntry, CompressionMethod},
-    nom::{find_end_of_central_directory, find_local_file_entries},
-    std::ToPath,
-};
-
+use zipr::{compression::DecompressToVec, core::data::{AsciiStr, CompressionMethod, ZipEntry, file::LocalFileEntry}, nom::{find_end_of_central_directory, find_local_file_entries}, std::ToPath};
 
 /// List all the files to console
 pub fn list_files<P>(path: P) -> Result<()>
@@ -77,6 +72,30 @@ pub fn add_files<P: AsRef<Path>>(
     files: Vec<P>,
     _compression: CompressionMethod,
 ) -> Result<()> {
+
+    fn to_zip<'a>(path:&'a Path,bytes:&'a [u8]) -> Result<ZipEntry<'a>, anyhow::Error>{
+        let comment = AsciiStr::from_ascii("".as_bytes()).unwrap();
+        let extra_field = zipr::core::data::extra_field::ExtraField::Unknown(&[]);
+        let file_modification_time = zipr::core::data::DosTime::from_u16_unchecked(0);
+        let file_modification_date = zipr::core::data::DosDate::from_u16_unchecked(0);
+        let file_name = zipr::core::data::ZipPath::create_from_string(path.to_str().unwrap().as_ascii_str().unwrap()).unwrap();
+        let entry = ZipEntry{
+            version_made_by: 0,
+            version_needed: 0,
+            general_purpose: 0,
+            file_modification_time,
+            file_modification_date,
+            internal_file_attributes: 0,
+            external_file_attributes: 0,
+            file_name,
+            extra_field,
+            comment,
+            compressed_data: zipr::compression::deflate(&bytes),
+        };
+        Ok(entry)
+        
+    }
+
     let path = file.as_ref();
     let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
     println!("{}", path.to_string_lossy());
@@ -89,9 +108,9 @@ pub fn add_files<P: AsRef<Path>>(
     };
 
     // At its core we need existing entries to determine what entries to store
-    let entries = if path.exists() {
-        let (_, entries) = find_local_file_entries(&bytes)
-            .finish()
+    let entries = if !bytes.is_empty() {
+        let entries = zipr::nom::iter::zip_entry_iter(&bytes)
+            .sequence()
             .map_err(Into::<AppError>::into)?;
         entries
     } else {
@@ -99,12 +118,21 @@ pub fn add_files<P: AsRef<Path>>(
     };
 
     // Filter out the entries that we already have
-    let existing: Vec<LocalFileEntry> = entries
+    let mut existing : Vec<_>= entries
         .into_iter()
         .filter(|x| !files.contains(&x.file_name.to_path()))
         .collect();
 
-    // convert files into LocalFileEntry using deflate
+    let file_data = files.iter().map(|i| std::fs::read(i)).sequence()?;
+    // Calculate new additions
+    let mut new_entries:Vec<_> = 
+        files.into_iter().enumerate().map(|(i,p)| {
+            let bytes = &file_data[i];
+            to_zip(p, bytes)
+        }).sequence()?;
+
+    existing.append(&mut new_entries);    
+
     println!("{:?}", existing);
 
     Ok(())
