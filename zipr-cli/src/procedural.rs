@@ -1,85 +1,35 @@
+use crate::{
+    display::{display_entries, ToString},
+    error::AppError,
+};
 use super::sequence::Sequence;
 use anyhow::Result;
-use comfy_table::Table;
-use nom::{error::Error, Finish};
-use std::{fmt::Display, path::Path, str::from_utf8};
+use nom::Finish;
+use std::path::Path;
 use zipr::{
-    compression::{DecompressError, DecompressToVec},
-    core::data::{file::LocalFileEntry, CompressionMethod, ZipEntry, ZipPath},
-    nom::{find_end_of_central_directory, find_local_file_entries, iter::ZipEntryIteratorError},
-    std::{ToNaiveDate, ToNaiveTime, ToPath},
+    compression::DecompressToVec,
+    core::data::{file::LocalFileEntry, CompressionMethod},
+    nom::{find_end_of_central_directory, find_local_file_entries},
+    std::ToPath,
 };
 
-trait ToString {
-    fn to_string(&self) -> String;
-}
 
-impl ToString for ZipPath<'_> {
-    fn to_string(&self) -> String {
-        from_utf8(self.to_bytes()).unwrap().to_string()
-    }
-}
-
-fn own_error<T>(e: Error<T>) -> Error<String> {
-    Error::new(String::from("Unable to parse"), e.code)
-}
-#[derive(Debug)]
-enum AppError {
-    Decompression(DecompressError),
-    Iterator,
-}
-
-impl From<ZipEntryIteratorError<'_>> for AppError {
-    fn from(_: ZipEntryIteratorError<'_>) -> Self {
-        AppError::Iterator
-    }
-}
-
-impl Display for AppError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{:?}", self))
-    }
-}
-
-impl std::error::Error for AppError {}
-
+/// List all the files to console
 pub fn list_files<P>(path: P) -> Result<()>
 where
     P: AsRef<Path>,
 {
-    let mut table = Table::new();
-    let mut total = 0;
-    table.set_header(vec!["Length", "Date", "Time", "Name"]);
-
     let bytes = std::fs::read(path)?;
-
-    let entries: Result<Vec<ZipEntry<'_>>, AppError> = zipr::nom::iter::zip_entry_iter(&bytes)
+    let entries = zipr::nom::iter::zip_entry_iter(&bytes)
         .sequence()
-        .map_err(|e| e.into());
+        .map_err(Into::<AppError>::into)?;
 
-    let entries = entries?;
-
-    for e in entries.iter() {
-        let row = vec![
-            format!("{}", e.compressed_data.uncompressed_size()),
-            format!("{}", e.file_modification_date.to_date()),
-            format!("{}", e.file_modification_time.to_time()),
-            e.file_name.to_string(),
-        ];
-        total += e.compressed_data.uncompressed_size();
-        table.add_row(row);
-    }
-    table.add_row(vec![
-        format!("{}", total),
-        String::new(),
-        String::new(),
-        format!("{}", entries.len()),
-    ]);
-
+    let table = display_entries(entries);
     println!("{}", table);
     Ok(())
 }
 
+/// Shows the comment of the zip archive
 pub fn show_comment<P>(path: P) -> Result<()>
 where
     P: AsRef<Path>,
@@ -87,24 +37,25 @@ where
     let bytes = std::fs::read(path)?;
     let (_, file) = find_end_of_central_directory(&bytes)
         .finish()
-        .map_err(own_error)?;
+        .map_err(Into::<AppError>::into)?;
     println!("{}", file.comment.to_string());
     Ok(())
 }
 
+/// Extract files to the supplied path
 pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output: P) -> Result<()> {
     fn extract_bytes(file: &LocalFileEntry<'_>) -> Result<Vec<u8>> {
         let bytes = file
             .compressed_data
             .decompress_to_vec()
-            .map_err(AppError::Decompression)?;
+            .map_err(Into::<AppError>::into)?;
         Ok(bytes)
     }
 
     let bytes = std::fs::read(file)?;
     let (_, entries) = find_local_file_entries(&bytes)
         .finish()
-        .map_err(own_error)?;
+        .map_err(Into::<AppError>::into)?;
 
     for entry in entries.iter() {
         let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
@@ -120,6 +71,7 @@ pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output:
     Ok(())
 }
 
+/// Adds files to an existing archive
 pub fn add_files<P: AsRef<Path>>(
     file: P,
     files: Vec<P>,
@@ -140,7 +92,7 @@ pub fn add_files<P: AsRef<Path>>(
     let entries = if path.exists() {
         let (_, entries) = find_local_file_entries(&bytes)
             .finish()
-            .map_err(own_error)?;
+            .map_err(Into::<AppError>::into)?;
         entries
     } else {
         Vec::new()

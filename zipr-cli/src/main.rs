@@ -1,4 +1,6 @@
 mod args;
+mod display;
+mod error;
 mod procedural;
 mod sequence;
 use anyhow::Result;
