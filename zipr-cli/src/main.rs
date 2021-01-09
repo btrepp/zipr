@@ -1,5 +1,8 @@
 mod args;
+mod display;
+mod error;
 mod procedural;
+mod sequence;
 use anyhow::Result;
 use args::zipr::Opt;
 use std::env;
@@ -26,5 +29,10 @@ fn main() -> Result<()> {
             files,
             output,
         } => procedural::extract_files(file, files, output),
+        Opt::Add {
+            file,
+            files,
+            compress,
+        } => procedural::add_files(file, files, compress),
     }
 }

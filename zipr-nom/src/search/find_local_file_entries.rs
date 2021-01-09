@@ -1,12 +1,12 @@
 use alloc::vec::Vec;
 use nom::IResult;
-use zipr_core::data::{CentralDirectoryEntry, LocalFileEntry};
+use zipr_core::data::file::{CentralDirectoryEntry, LocalFileEntry};
 
 use crate::data::parse_local_file;
 
 use super::find_central_directory_entries;
 
-fn local_entry<'a>(
+pub fn local_entry<'a>(
     full_file: &'a [u8],
     directory: &CentralDirectoryEntry,
 ) -> IResult<&'a [u8], LocalFileEntry<'a>> {
@@ -35,6 +35,7 @@ pub fn find_local_file_entries(input: &[u8]) -> IResult<&[u8], Vec<LocalFileEntr
 
 #[cfg(test)]
 mod tests {
+    use ascii::AsAsciiStr;
     use nom::Finish;
     use zipr_core::data::ZipPath;
 
@@ -50,7 +51,7 @@ mod tests {
         assert_eq!(0, rem.len());
         assert_eq!(1, result.len());
         assert_eq!(
-            ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
+            ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             result[0].file_name
         );
     }
@@ -66,11 +67,11 @@ mod tests {
         assert_eq!(0, rem.len());
         assert_eq!(2, result.len());
         assert_eq!(
-            ZipPath::create_from_bytes("hello.txt".as_bytes()).unwrap(),
+            ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             result[0].file_name
         );
         assert_eq!(
-            ZipPath::create_from_bytes("moredata.txt".as_bytes()).unwrap(),
+            ZipPath::create_from_string("moredata.txt".as_ascii_str().unwrap()).unwrap(),
             result[1].file_name
         );
     }

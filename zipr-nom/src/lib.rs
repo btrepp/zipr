@@ -1,8 +1,7 @@
 #![no_std]
 extern crate alloc;
-mod compression;
 pub mod data;
+pub mod iter;
 mod search;
 
-pub use compression::*;
 pub use search::*;

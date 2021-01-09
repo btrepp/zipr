@@ -16,3 +16,4 @@ structopt = { version = "0.3" }
 anyhow = "1.0"
 nom = "6.0.1"
 comfy-table = "1.5.0"
+ascii = {version="1.0.0", default-features = false}

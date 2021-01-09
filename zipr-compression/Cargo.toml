@@ -1,5 +1,5 @@
 [package]
-name = "zipr-nom"
+name = "zipr-compression"
 version = "0.1.0"
 authors = ["beau trepp <beautrepp@gmail.com>"]
 edition = "2018"
@@ -7,6 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nom = { version = "6.0.1", default-features = false }
+miniz_oxide = { version = "0.4.3"}
 zipr-core = {path="../zipr-core"}
-ascii = {version="1.0.0", default-features = false}
+crc = { version=" ^1.0.0", default-features=false}
