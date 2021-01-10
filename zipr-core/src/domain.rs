@@ -42,10 +42,10 @@ pub fn make_zip_entry<'a>(
 /// the local file and central directory entries.
 /// Note we need to know where the localfile entry will be written as the offset from
 /// the beginning of the file
-pub fn zip_entry_to_files<'a>(
+pub fn zip_entry_to_files(
     relative_offset: u32,
-    entry: ZipEntry<'a>,
-) -> (LocalFileEntry<'a>, CentralDirectoryEntry<'a>) {
+    entry: ZipEntry<'_>,
+) -> (LocalFileEntry<'_>, CentralDirectoryEntry<'_>) {
     let version_made_by = entry.version_made_by;
     let version_needed = entry.version_needed;
     let general_purpose = entry.general_purpose;

@@ -29,11 +29,10 @@ type Result<'a, T> = core::result::Result<T, CentralDirectoryIteratorError<'a>>;
 impl<'a> CentralDirectoryIterator<'a> {
     pub fn create(file: &[u8]) -> CentralDirectoryIterator {
         let state = State::Initialized;
-        let iterator = CentralDirectoryIterator {
+        CentralDirectoryIterator {
             unprocessed: file,
             state,
-        };
-        iterator
+        }
     }
 
     fn next_entry(it: &mut CentralDirectoryIterator<'a>) -> Result<'a, CentralDirectoryEntry<'a>> {
@@ -86,6 +85,6 @@ impl<'a> Iterator for CentralDirectoryIterator<'a> {
     }
 }
 
-pub fn iterate_central_directory<'a>(file: &'a [u8]) -> CentralDirectoryIterator<'a> {
+pub fn iterate_central_directory(file: &[u8]) -> CentralDirectoryIterator<'_> {
     CentralDirectoryIterator::create(file)
 }
