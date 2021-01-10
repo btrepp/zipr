@@ -15,4 +15,8 @@ impl<'a> ZipPath<'a> {
     pub fn to_bytes(&self) -> &[u8] {
         self.0.as_bytes()
     }
+
+    pub fn len(&self) -> usize {
+        self.to_bytes().len()
+    }
 }

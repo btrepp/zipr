@@ -7,6 +7,10 @@ impl DosTime {
         DosTime(time)
     }
 
+    pub fn as_bytes(&self) -> u16 {
+        self.0
+    }
+
     pub fn sec(&self) -> u8 {
         let sec = (self.0 & 0x1F) * 2;
         sec as u8

@@ -8,6 +8,10 @@ impl DosDate {
         DosDate(date)
     }
 
+    pub fn as_bytes(&self) -> u16 {
+        self.0
+    }
+
     pub fn year(&self) -> u16 {
         let year = (self.0 >> 9) + 1980;
         year as u16

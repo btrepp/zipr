@@ -11,4 +11,8 @@ impl WinTimestamp {
     pub fn from_u64(time: u64) -> Result<Self, WinTimestampError> {
         Ok(Self::from_u64_unchecked(time))
     }
+
+    pub fn as_u64(&self) -> u64 {
+        self.0
+    }
 }
