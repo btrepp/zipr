@@ -1,4 +1,5 @@
-#[derive(Debug, PartialEq, Copy, Clone)]
+use core::fmt::Debug;
+#[derive(PartialEq, Copy, Clone)]
 pub struct DosTime(u16);
 
 impl DosTime {
@@ -19,6 +20,16 @@ impl DosTime {
     pub fn hour(&self) -> u8 {
         let hour = (self.0 >> 11) & 0x1F;
         hour as u8
+    }
+}
+
+impl Debug for DosTime {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("DosTime")
+            .field("hour", &self.hour())
+            .field("min", &self.min())
+            .field("sec", &self.sec())
+            .finish()
     }
 }
 
