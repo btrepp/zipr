@@ -1,13 +1,18 @@
+use super::sequence::Sequence;
 use crate::{
     display::{display_entries, ToString},
     error::AppError,
 };
-use super::sequence::Sequence;
 use anyhow::Result;
 use ascii::AsAsciiStr;
 use nom::Finish;
 use std::path::Path;
-use zipr::{compression::DecompressToVec, core::data::{AsciiStr, CompressionMethod, ZipEntry, file::LocalFileEntry}, nom::{find_end_of_central_directory, find_local_file_entries}, std::ToPath};
+use zipr::{
+    compression::DecompressToVec,
+    core::data::{file::LocalFileEntry, AsciiStr, CompressionMethod, ZipEntry},
+    nom::{find_end_of_central_directory, find_local_file_entries},
+    std::ToPath,
+};
 
 /// List all the files to console
 pub fn list_files<P>(path: P) -> Result<()>
@@ -72,14 +77,16 @@ pub fn add_files<P: AsRef<Path>>(
     files: Vec<P>,
     _compression: CompressionMethod,
 ) -> Result<()> {
-
-    fn to_zip<'a>(path:&'a Path,bytes:&'a [u8]) -> Result<ZipEntry<'a>, anyhow::Error>{
+    fn to_zip<'a>(path: &'a Path, bytes: &'a [u8]) -> Result<ZipEntry<'a>, anyhow::Error> {
         let comment = AsciiStr::from_ascii("".as_bytes()).unwrap();
         let extra_field = zipr::core::data::extra_field::ExtraField::Unknown(&[]);
         let file_modification_time = zipr::core::data::DosTime::from_u16_unchecked(0);
         let file_modification_date = zipr::core::data::DosDate::from_u16_unchecked(0);
-        let file_name = zipr::core::data::ZipPath::create_from_string(path.to_str().unwrap().as_ascii_str().unwrap()).unwrap();
-        let entry = ZipEntry{
+        let file_name = zipr::core::data::ZipPath::create_from_string(
+            path.to_str().unwrap().as_ascii_str().unwrap(),
+        )
+        .unwrap();
+        let entry = ZipEntry {
             version_made_by: 0,
             version_needed: 0,
             general_purpose: 0,
@@ -93,7 +100,6 @@ pub fn add_files<P: AsRef<Path>>(
             compressed_data: zipr::compression::deflate(&bytes),
         };
         Ok(entry)
-        
     }
 
     let path = file.as_ref();
@@ -118,20 +124,23 @@ pub fn add_files<P: AsRef<Path>>(
     };
 
     // Filter out the entries that we already have
-    let mut existing : Vec<_>= entries
+    let mut existing: Vec<_> = entries
         .into_iter()
         .filter(|x| !files.contains(&x.file_name.to_path()))
         .collect();
 
-    let file_data = files.iter().map(|i| std::fs::read(i)).sequence()?;
+    let file_data = files.iter().map(std::fs::read).sequence()?;
     // Calculate new additions
-    let mut new_entries:Vec<_> = 
-        files.into_iter().enumerate().map(|(i,p)| {
+    let mut new_entries: Vec<_> = files
+        .into_iter()
+        .enumerate()
+        .map(|(i, p)| {
             let bytes = &file_data[i];
             to_zip(p, bytes)
-        }).sequence()?;
+        })
+        .sequence()?;
 
-    existing.append(&mut new_entries);    
+    existing.append(&mut new_entries);
 
     println!("{:?}", existing);
 
