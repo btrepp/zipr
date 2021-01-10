@@ -5,20 +5,12 @@ use zipr::{compression::DecompressError, nom::iter::ZipEntryIteratorError};
 pub enum AppError {
     Decompression(DecompressError),
     NomError(nom::error::Error<String>),
-    Iterator,
+    ZipIteratorError(ZipEntryIteratorError),
 }
 
-impl From<ZipEntryIteratorError<'_>> for AppError {
-    fn from(_: ZipEntryIteratorError<'_>) -> Self {
-        AppError::Iterator
-    }
-}
-
-impl From<nom::error::Error<&'_ [u8]>> for AppError {
-    fn from(n: nom::error::Error<&'_ [u8]>) -> Self {
-        let hex = nom::HexDisplay::to_hex(n.input, 8);
-        let owned = nom::error::Error::new(hex, n.code);
-        AppError::NomError(owned)
+impl From<ZipEntryIteratorError> for AppError {
+    fn from(z: ZipEntryIteratorError) -> Self {
+        AppError::ZipIteratorError(z)
     }
 }
 
@@ -28,9 +20,17 @@ impl From<DecompressError> for AppError {
     }
 }
 
+impl From<nom::error::Error<&'_ [u8]>> for AppError {
+    fn from(e: nom::error::Error<&'_ [u8]>) -> Self {
+        let hex = nom::HexDisplay::to_hex(e.input, 8);
+        let error = nom::error::Error::new(hex, e.code);
+        AppError::NomError(error)
+    }
+}
+
 impl Display for AppError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_fmt(format_args!("{:?}", self))
+        f.write_fmt(format_args!("{:x?}", self))
     }
 }
 
