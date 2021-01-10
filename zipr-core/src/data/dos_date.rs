@@ -1,4 +1,6 @@
-#[derive(Debug, PartialEq, Copy, Clone)]
+use core::fmt::Debug;
+
+#[derive(PartialEq, Copy, Clone)]
 pub struct DosDate(u16);
 
 impl DosDate {
@@ -27,6 +29,16 @@ impl DosDate {
             day = 1
         }
         day as u8
+    }
+}
+
+impl Debug for DosDate {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.debug_struct("DosDate")
+            .field("year", &self.year())
+            .field("month", &self.month())
+            .field("day", &self.day())
+            .finish()
     }
 }
 
