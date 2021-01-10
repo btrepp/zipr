@@ -1,16 +1,22 @@
-use core::iter::Iterator;
+use core::{cmp::min, iter::Iterator};
 use nom::Finish;
-use zipr_core::data::file::CentralDirectoryEntry;
+use zipr_core::{
+    constants::{self},
+    data::file::CentralDirectoryEntry,
+};
 
-pub enum CentralDirectoryIteratorError<'a> {
-    NoEndofDirectory(nom::error::Error<&'a [u8]>),
-    InvalidDirectoryEntry(nom::error::Error<&'a [u8]>),
+#[derive(Debug)]
+pub enum CentralDirectoryIteratorError {
+    NoEndOfDirectory(
+        nom::error::Error<[u8; constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE as usize]>,
+    ),
+    InvalidDirectoryEntry(
+        nom::error::Error<[u8; constants::CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as usize]>,
+    ),
 }
-
-impl<'a> From<nom::error::Error<&'a [u8]>> for CentralDirectoryIteratorError<'a> {
-    fn from(e: nom::error::Error<&'a [u8]>) -> Self {
-        CentralDirectoryIteratorError::InvalidDirectoryEntry(e)
-    }
+pub struct CentralDirectoryIterator<'a> {
+    unprocessed: &'a [u8],
+    state: State,
 }
 
 enum State {
@@ -18,73 +24,85 @@ enum State {
     Errored,
     Entries,
 }
-
-pub struct CentralDirectoryIterator<'a> {
-    unprocessed: &'a [u8],
-    state: State,
+pub fn iterate_central_directory(file: &[u8]) -> CentralDirectoryIterator {
+    let state = State::Initialized;
+    CentralDirectoryIterator {
+        unprocessed: file,
+        state,
+    }
+}
+fn copy_slice_safe(a: &mut [u8], b: &[u8]) {
+    let length = min(a.len(), b.len());
+    let dest = &mut a[..length];
+    let src = &b[..length];
+    dest.copy_from_slice(src);
 }
 
-type Result<'a, T> = core::result::Result<T, CentralDirectoryIteratorError<'a>>;
+fn invalid_entry(error: nom::error::Error<&'_ [u8]>) -> CentralDirectoryIteratorError {
+    let mut dest: [u8; constants::CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as usize] =
+        [0; constants::CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as usize];
+    copy_slice_safe(&mut dest, error.input);
+    let error = nom::error::Error::new(dest, error.code);
+    CentralDirectoryIteratorError::InvalidDirectoryEntry(error)
+}
 
-impl<'a> CentralDirectoryIterator<'a> {
-    pub fn create(file: &[u8]) -> CentralDirectoryIterator {
-        let state = State::Initialized;
-        CentralDirectoryIterator {
-            unprocessed: file,
-            state,
+fn invalid_eocd(error: nom::error::Error<&'_ [u8]>) -> CentralDirectoryIteratorError {
+    let mut dest: [u8; constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE as usize] =
+        [0; constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE as usize];
+    copy_slice_safe(&mut dest, error.input);
+    let error = nom::error::Error::new(dest, error.code);
+    CentralDirectoryIteratorError::NoEndOfDirectory(error)
+}
+
+fn next_entry<'a>(
+    it: &mut CentralDirectoryIterator<'a>,
+) -> Result<CentralDirectoryEntry<'a>, CentralDirectoryIteratorError> {
+    match crate::data::parse_directory_header(it.unprocessed).finish() {
+        Err(e) => {
+            it.state = State::Errored;
+            let error = invalid_entry(e);
+            Err(error)
+        }
+        Ok((rem, dir)) => {
+            it.unprocessed = rem;
+            Ok(dir)
         }
     }
+}
 
-    fn next_entry(it: &mut CentralDirectoryIterator<'a>) -> Result<'a, CentralDirectoryEntry<'a>> {
-        match crate::data::parse_directory_header(it.unprocessed).finish() {
-            Err(e) => {
-                it.state = State::Errored;
-                Err(CentralDirectoryIteratorError::InvalidDirectoryEntry(e))
-            }
-            Ok((rem, dir)) => {
-                it.unprocessed = rem;
-                Ok(dir)
-            }
+fn from_initialize<'a>(
+    it: &mut CentralDirectoryIterator<'a>,
+) -> Result<CentralDirectoryEntry<'a>, CentralDirectoryIteratorError> {
+    match crate::search::find_end_of_central_directory(it.unprocessed).finish() {
+        Err(e) => {
+            it.state = State::Errored;
+            let error = invalid_eocd(e);
+            Err(error)
         }
-    }
-
-    fn from_initialize(
-        it: &mut CentralDirectoryIterator<'a>,
-    ) -> Result<'a, CentralDirectoryEntry<'a>> {
-        match crate::search::find_end_of_central_directory(it.unprocessed).finish() {
-            Err(e) => {
-                it.state = State::Errored;
-                Err(CentralDirectoryIteratorError::NoEndofDirectory(e))
-            }
-            Ok((_, eocd)) => {
-                let start = eocd.offset_start_directory as usize;
-                let end = start + eocd.size_of_directory as usize;
-                it.unprocessed = &it.unprocessed[start..end];
-                it.state = State::Entries;
-                Self::next_entry(it)
-            }
+        Ok((_, eocd)) => {
+            let start = eocd.offset_start_directory as usize;
+            let end = start + eocd.size_of_directory as usize;
+            it.unprocessed = &it.unprocessed[start..end];
+            it.state = State::Entries;
+            next_entry(it)
         }
     }
 }
 
 impl<'a> Iterator for CentralDirectoryIterator<'a> {
-    type Item = Result<'a, CentralDirectoryEntry<'a>>;
+    type Item = Result<CentralDirectoryEntry<'a>, CentralDirectoryIteratorError>;
 
     fn next(&mut self) -> Option<Self::Item> {
         match self.state {
             State::Errored => None,
-            State::Initialized => Some(Self::from_initialize(self)),
+            State::Initialized => Some(from_initialize(self)),
             State::Entries => {
                 if self.unprocessed.is_empty() {
                     None
                 } else {
-                    Some(Self::next_entry(self))
+                    Some(next_entry(self))
                 }
             }
         }
     }
-}
-
-pub fn iterate_central_directory(file: &[u8]) -> CentralDirectoryIterator<'_> {
-    CentralDirectoryIterator::create(file)
 }
