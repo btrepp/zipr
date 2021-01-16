@@ -3,11 +3,10 @@
 //! https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 mod compressed_data;
 
-use super::CompressionMethod;
 use super::DosDate;
 use super::DosTime;
 use super::ExtraField;
-use super::ZipPath;
+use super::{CompressionMethod, ZipPath};
 use ascii::AsciiStr;
 pub use compressed_data::*;
 
@@ -15,7 +14,7 @@ pub use compressed_data::*;
 /// This appears at the end of the file
 /// Mainly used to tell  where the central directory
 /// starts
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq, Default, Copy, Clone)]
 pub struct EndOfCentralDirectory<'a> {
     pub total_number_records: u16,
     pub size_of_directory: u32,
@@ -26,7 +25,7 @@ pub struct EndOfCentralDirectory<'a> {
 /// An entry for a file in the central directory
 /// This is the 'true' source of where a file is
 /// and what properties it has
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct CentralDirectoryEntry<'a> {
     pub version_made_by: u16,
     pub version_needed: u16,
@@ -49,7 +48,7 @@ pub struct CentralDirectoryEntry<'a> {
 /// Note bytes will be right after this
 /// It is not strictly necessary to use this to parse
 /// a file
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct LocalFileEntry<'a> {
     pub version_needed: u16,
     pub general_purpose: u16,

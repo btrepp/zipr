@@ -1,3 +1,5 @@
+use crate::constants;
+
 use self::ntfs::NTFS;
 
 pub mod ntfs;
@@ -19,5 +21,14 @@ impl<'a> Default for ExtraField<'a> {
         //This isn't really the best, but does keep it all
         //easy to use
         ExtraField::Unknown(&[])
+    }
+}
+
+impl ExtraField<'_> {
+    pub fn serialized_len(&self) -> usize {
+        match self {
+            ExtraField::Unknown(x) => (*x).len(),
+            ExtraField::NTFS(_) => constants::EXTRA_FIELD_NTFS_LENGTH as usize,
+        }
     }
 }

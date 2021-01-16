@@ -58,7 +58,7 @@ fn next_entry<'a>(
     let end = input.len();
     let input = &input[start..end];
     let (_, entry) = parse_local_file(input).finish().map_err(invalid_entry)?;
-    let zip = make_zip_entry(&directory, entry);
+    let zip = make_zip_entry(&directory, &entry);
     Ok(zip)
 }
 
