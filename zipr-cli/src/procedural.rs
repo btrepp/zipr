@@ -1,5 +1,6 @@
 use super::sequence::Sequence;
 use crate::{
+    args::zipr::InspectKind,
     display::{display_entries, ToString},
     error::AppError,
 };
@@ -9,8 +10,14 @@ use nom::Finish;
 use std::path::Path;
 use zipr::{
     compression::DecompressToVec,
-    core::data::{file::LocalFileEntry, AsciiStr, CompressionMethod, ZipEntry},
-    nom::{find_end_of_central_directory, find_local_file_entries},
+    core::data::{
+        file::{CompressedData, LocalFileEntry},
+        AsciiStr, CompressionMethod, ZipEntry,
+    },
+    nom::{
+        data::parse_directory_header, data::parse_end_of_central_directory, data::parse_local_file,
+        find_end_of_central_directory, find_local_file_entries,
+    },
     std::ToPath,
 };
 
@@ -71,13 +78,50 @@ pub fn extract_files<P: AsRef<Path> + PartialEq>(file: P, files: Vec<P>, output:
     Ok(())
 }
 
+pub fn inspect<P: AsRef<Path> + PartialEq>(
+    file: P,
+    kind: InspectKind,
+    offset: usize,
+    upto: Option<usize>,
+) -> Result<()> {
+    let bytes = std::fs::read(file)?;
+    let slice = match upto {
+        None => &bytes[offset..],
+        Some(x) => &bytes[offset..offset + x],
+    };
+    match kind {
+        InspectKind::Local => {
+            let (_, local) = parse_local_file(slice)
+                .finish()
+                .map_err(Into::<AppError>::into)?;
+            println!("{:x?}", local);
+        }
+        InspectKind::Dir => {
+            let (_, local) = parse_directory_header(slice)
+                .finish()
+                .map_err(Into::<AppError>::into)?;
+            println!("{:x?}", local);
+        }
+        InspectKind::Eocd => {
+            let (_, local) = parse_end_of_central_directory(slice)
+                .finish()
+                .map_err(Into::<AppError>::into)?;
+            println!("{:x?}", local);
+        }
+    }
+    Ok(())
+}
+
 /// Adds files to an existing archive
 pub fn add_files<P: AsRef<Path>>(
     file: P,
     files: Vec<P>,
-    _compression: CompressionMethod,
+    compression: CompressionMethod,
 ) -> Result<()> {
-    fn to_zip<'a>(path: &'a Path, bytes: &'a [u8]) -> Result<ZipEntry<'a>, anyhow::Error> {
+    fn to_zip<'a>(
+        path: &'a Path,
+        compressed_data: CompressedData<'a>,
+    ) -> Result<ZipEntry<'a>, anyhow::Error> {
         let comment = AsciiStr::from_ascii("".as_bytes()).unwrap();
         let extra_field = zipr::core::data::extra_field::ExtraField::Unknown(&[]);
         let file_modification_time = zipr::core::data::DosTime::from_u16_unchecked(0);
@@ -86,6 +130,7 @@ pub fn add_files<P: AsRef<Path>>(
             path.to_str().unwrap().as_ascii_str().unwrap(),
         )
         .unwrap();
+
         let entry = ZipEntry {
             version_made_by: 0,
             version_needed: 0,
@@ -97,10 +142,10 @@ pub fn add_files<P: AsRef<Path>>(
             file_name,
             extra_field,
             comment,
-            compressed_data: zipr::compression::deflate(&bytes),
+            compressed_data,
         };
         Ok(entry)
-    }
+    };
 
     let path = file.as_ref();
     let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
@@ -129,20 +174,27 @@ pub fn add_files<P: AsRef<Path>>(
         .filter(|x| !files.contains(&x.file_name.to_path()))
         .collect();
 
-    let file_data = files.iter().map(std::fs::read).sequence()?;
-    // Calculate new additions
-    let mut new_entries: Vec<_> = files
-        .into_iter()
-        .enumerate()
-        .map(|(i, p)| {
-            let bytes = &file_data[i];
-            to_zip(p, bytes)
-        })
-        .sequence()?;
+    let mut pool: Vec<Vec<u8>> = Vec::new();
 
+    let mut new_entries = {
+        let mut new_entries: Vec<ZipEntry> = Vec::new();
+        for _ in files.iter() {
+            pool.push(Vec::new())
+        }
+
+        for (i, buf) in pool.iter_mut().enumerate() {
+            let f = std::fs::read(files[i]).unwrap();
+            let compress = zipr::compression::compress_with(compression, buf, &f);
+            let zip = to_zip(files[i], compress).unwrap();
+            new_entries.push(zip)
+        }
+        new_entries
+    };
     existing.append(&mut new_entries);
 
-    println!("{:?}", existing);
+    let mut zip = std::fs::File::create(path)?;
+    let serializer = zipr::cookie::file(existing.iter());
+    let _ = cookie_factory::gen(serializer, &mut zip);
 
     Ok(())
 }

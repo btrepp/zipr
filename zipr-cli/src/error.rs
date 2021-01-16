@@ -4,7 +4,7 @@ use zipr::{compression::DecompressError, nom::iter::ZipEntryIteratorError};
 #[derive(Debug)]
 pub enum AppError {
     Decompression(DecompressError),
-    NomError(nom::error::Error<String>),
+    NomError(nom::error::Error<Vec<u8>>),
     ZipIteratorError(ZipEntryIteratorError),
 }
 
@@ -22,8 +22,8 @@ impl From<DecompressError> for AppError {
 
 impl From<nom::error::Error<&'_ [u8]>> for AppError {
     fn from(e: nom::error::Error<&'_ [u8]>) -> Self {
-        let hex = nom::HexDisplay::to_hex(e.input, 8);
-        let error = nom::error::Error::new(hex, e.code);
+        let data = e.input.to_vec();
+        let error = nom::error::Error::new(data, e.code);
         AppError::NomError(error)
     }
 }

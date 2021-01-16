@@ -16,7 +16,7 @@ pub fn parse_zip_entries(input: &[u8]) -> IResult<&[u8], Vec<ZipEntry<'_>>> {
     for directory in directories.iter() {
         let (_, file) = local_entry(input, &directory)?;
 
-        let zip = make_zip_entry(directory, file);
+        let zip = make_zip_entry(directory, &file);
         local.push(zip);
     }
     Ok((&[], local))

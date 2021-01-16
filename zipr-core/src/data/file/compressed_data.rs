@@ -1,7 +1,9 @@
 use super::CompressionMethod;
 
 /// Data structure which represents compressed data
-#[derive(Debug, PartialEq)]
+/// Note: This is will always point to the same 'chunk'
+/// Of memory, so clone/copy won't duplicate that
+#[derive(Debug, PartialEq, Copy, Clone)]
 pub struct CompressedData<'a> {
     bytes: &'a [u8],
     crc32: u32,

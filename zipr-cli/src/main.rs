@@ -34,5 +34,11 @@ fn main() -> Result<()> {
             files,
             compress,
         } => procedural::add_files(file, files, compress),
+        Opt::Inspect {
+            file,
+            offset,
+            kind,
+            take,
+        } => procedural::inspect(file, kind, offset.0, take.map(|x| x.into())),
     }
 }
