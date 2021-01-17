@@ -1,6 +1,6 @@
-///! A collection of constants for zip files
-///! This includes magic headers for the parsing parts
-///! It also includes some minimum lengths/numbers
+//! A collection of constants for zip files
+//! This includes magic headers for the parsing parts
+//! It also includes some minimum lengths/numbers
 
 pub const END_OF_CENTRAL_DIRECTORY_HEADER: [u8; 4] = [0x50, 0x4B, 0x05, 0x06];
 pub const END_OF_CENTRAL_DIRECTORY_MIN_SIZE: usize = 22;

@@ -39,13 +39,13 @@ pub fn central_directory_entry<'a, W: Write + 'a>(
 
 #[cfg(test)]
 mod tests {
-    use core::panic;
+    use core::{convert::TryInto, panic};
 
     use ascii::{AsAsciiStr, AsciiStr};
     use cookie_factory::gen;
     use zipr_data::{
         borrowed::{
-            extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
+            extra_field::{ntfs::NTFS, ExtraField},
             ZipPath,
         },
         CompressionMethod, DosDate, DosTime,
@@ -70,9 +70,9 @@ mod tests {
             file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
-                atime: WinTimestamp::from_u64_unchecked(132514708162669827),
-                mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
-                ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
+                atime: 132514708162669827.try_into().unwrap(),
+                mtime: 132514707831351075.try_into().unwrap(),
+                ctime: 132514707783459448.try_into().unwrap(),
             }),
             compression_method: CompressionMethod::Stored,
             general_purpose: 0,
@@ -102,9 +102,9 @@ mod tests {
             file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
-                atime: WinTimestamp::from_u64(132517337704649244).unwrap(),
-                mtime: WinTimestamp::from_u64(132517337704649244).unwrap(),
-                ctime: WinTimestamp::from_u64(132514707783459448).unwrap(),
+                atime: 132517337704649244.try_into().unwrap(),
+                mtime: 132517337704649244.try_into().unwrap(),
+                ctime: 132514707783459448.try_into().unwrap(),
             }),
             compression_method: CompressionMethod::Deflate,
             general_purpose: 0,

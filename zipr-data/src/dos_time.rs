@@ -1,4 +1,8 @@
 use core::fmt::Debug;
+
+/// 16 bit dos time data structure. Stored internally in u16
+/// Note: dostime stores 2 second intervals, so there are some limitations
+/// to this time format
 #[derive(PartialEq, Copy, Clone)]
 pub struct DosTime(u16);
 

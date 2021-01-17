@@ -1,10 +1,11 @@
+use core::convert::TryInto;
+
 use nom::{
-    bytes::complete::tag, combinator::map, number::complete::le_u32, number::complete::le_u64,
+    bytes::complete::tag, combinator::map_res, number::complete::le_u32, number::complete::le_u64,
     IResult,
 };
 use zipr_data::{
-    borrowed::extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp},
-    constants::EXTRA_FIELD_NTFS_HEADER,
+    borrowed::extra_field::ntfs::NTFS, constants::EXTRA_FIELD_NTFS_HEADER, WinTimestamp,
 };
 
 pub fn parse_ntfs(input: &[u8]) -> IResult<&[u8], NTFS> {
@@ -16,9 +17,9 @@ pub fn parse_ntfs(input: &[u8]) -> IResult<&[u8], NTFS> {
     let (input, _tag1) = tag([0x1, 0x0])(input)?;
     let (input, _size1) = tag([0x18, 0])(input)?;
 
-    let (input, mtime) = map(le_u64, WinTimestamp::from_u64_unchecked)(input)?;
-    let (input, atime) = map(le_u64, WinTimestamp::from_u64_unchecked)(input)?;
-    let (input, ctime) = map(le_u64, WinTimestamp::from_u64_unchecked)(input)?;
+    let (input, mtime) = map_res(le_u64, TryInto::<WinTimestamp>::try_into)(input)?;
+    let (input, atime) = map_res(le_u64, TryInto::<WinTimestamp>::try_into)(input)?;
+    let (input, ctime) = map_res(le_u64, TryInto::<WinTimestamp>::try_into)(input)?;
 
     let result = NTFS {
         mtime,
@@ -32,6 +33,8 @@ pub fn parse_ntfs(input: &[u8]) -> IResult<&[u8], NTFS> {
 #[cfg(test)]
 mod tests {
 
+    use core::convert::TryInto;
+
     use super::*;
 
     #[test]
@@ -40,9 +43,9 @@ mod tests {
         let data = &hello[0x63..0x87];
         let result = parse_ntfs(data);
         let expected = NTFS {
-            atime: WinTimestamp::from_u64_unchecked(132514708162669827),
-            mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
-            ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
+            atime: 132514708162669827.try_into().unwrap(),
+            mtime: 132514707831351075.try_into().unwrap(),
+            ctime: 132514707783459448.try_into().unwrap(),
         };
 
         assert_eq!(Ok((&[] as &[u8], expected)), result);
