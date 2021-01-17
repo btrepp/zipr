@@ -2,12 +2,16 @@ use alloc::vec::Vec;
 use crc::crc32;
 use miniz_oxide::inflate::TINFLStatus;
 use zipr_data::{borrowed::file::CompressedData, CompressionMethod};
+
+/// Enum for ways in which decompression can fail
 #[derive(Debug)]
 pub enum DecompressError {
     InvalidCrc(u32, u32),
     UnhandledCompressionMethod,
     Miniz(TINFLStatus),
 }
+
+/// Trait for expanded the compressed data into a vector
 pub trait DecompressToVec {
     fn decompress_to_vec(&self) -> Result<Vec<u8>, DecompressError>;
 }

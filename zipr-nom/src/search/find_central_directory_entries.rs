@@ -19,6 +19,7 @@ fn parse_directory_entries<'a>(
     Ok((input, result))
 }
 
+/// Given the full file, find the central directory entries
 pub fn find_central_directory_entries(
     input: &[u8],
 ) -> IResult<&[u8], Vec<CentralDirectoryEntry<'_>>> {

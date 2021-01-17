@@ -21,7 +21,7 @@ mod tests {
 
     use core::convert::TryInto;
 
-    use zipr_data::{borrowed::extra_field::ntfs::NTFS};
+    use zipr_data::borrowed::extra_field::ntfs::NTFS;
 
     use super::*;
 

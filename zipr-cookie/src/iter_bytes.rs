@@ -14,6 +14,10 @@ fn parts<'a, W: Write + 'a>(input: ZipPart<'a>) -> impl SerializeFn<W> + 'a {
     }
 }
 
+/// A serializer that takes an iterator of zip entries
+///
+/// This will enumerate the list twice, and layout all the
+/// datastructures correctly. It then adds the eocd when complete
 pub fn file<'a, W: Write + 'a, I>(input: I) -> impl SerializeFn<W> + 'a
 where
     I: Iterator<Item = &'a ZipEntry<'a>> + Clone + 'a,
