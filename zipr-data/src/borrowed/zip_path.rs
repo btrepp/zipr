@@ -1,8 +1,14 @@
 use ascii::AsciiStr;
 
+/// A borrow of a ascii str
+///
+/// This should represent a valid path for entries in the
+/// zip file. Note this is a subset of path or asciistr.
+/// as there are invalid states possible
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct ZipPath<'a>(&'a AsciiStr);
 
+/// Error for when a string is not a valid zippath
 #[derive(Debug)]
 pub enum ZipPathError {}
 

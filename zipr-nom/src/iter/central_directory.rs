@@ -1,8 +1,8 @@
 use core::{cmp::min, iter::Iterator};
 use nom::Finish;
-use zipr_core::{
+use zipr_data::{
+    borrowed::file::CentralDirectoryEntry,
     constants::{self},
-    data::file::CentralDirectoryEntry,
 };
 
 #[derive(Debug)]

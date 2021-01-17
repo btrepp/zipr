@@ -1,6 +1,6 @@
 use alloc::vec::Vec;
 use nom::IResult;
-use zipr_core::data::file::{CentralDirectoryEntry, LocalFileEntry};
+use zipr_data::borrowed::file::{CentralDirectoryEntry, LocalFileEntry};
 
 use crate::data::parse_local_file;
 
@@ -35,11 +35,11 @@ pub fn find_local_file_entries(input: &[u8]) -> IResult<&[u8], Vec<LocalFileEntr
 
 #[cfg(test)]
 mod tests {
+    use super::*;
     use ascii::AsAsciiStr;
     use nom::Finish;
-    use zipr_core::data::ZipPath;
+    use zipr_data::borrowed::ZipPath;
 
-    use super::*;
     #[test]
     fn hello_world_store_as_entries() {
         let hello = include_bytes!("../../../assets/hello_world_store.zip");

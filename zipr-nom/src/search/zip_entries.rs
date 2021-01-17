@@ -2,7 +2,8 @@ use super::find_local_file_entries::local_entry;
 use crate::find_central_directory_entries;
 use alloc::vec::Vec;
 use nom::IResult;
-use zipr_core::{data::ZipEntry, make_zip_entry};
+use zipr_data::borrowed::ZipEntry;
+use zipr_domain::make_zip_entry;
 
 /// Given the full file. Finds all the zip file entries
 /// Note this uses the central directory header to find the locations.

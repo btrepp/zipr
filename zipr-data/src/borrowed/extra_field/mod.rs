@@ -1,9 +1,10 @@
+//! Deals with the 'extra field' type
+//! this can have quite a few values
 use crate::constants;
 
 use self::ntfs::NTFS;
 
 pub mod ntfs;
-pub mod wintimestamp;
 
 /// Extra fields that can be present
 /// Known ones will be parsed, unknown will just store

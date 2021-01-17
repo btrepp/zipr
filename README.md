@@ -1,8 +1,8 @@
 # zipr
-Rust zip library using nom
 
-This aims to be a pure zip implementation using rust.
+Zip in rust
 
+This is pure rust implemenation of manipulating zip files.
 NOTE: Very much alpha. Data structures are most likely designed to change shape.
 
 ## Components
@@ -11,7 +11,7 @@ NOTE: Very much alpha. Data structures are most likely designed to change shape.
 
 Meta crate making the other crates easier to use
 
-### zipr-core 
+### zipr-data
 
 The core data structures. Hopefully this can be re-useable to other crates even if the parsers/serializers aren't.
 Note this is no-std. So is very minimal
@@ -19,6 +19,10 @@ Note this is no-std. So is very minimal
 ### zipr-nom
 
 Converts [u8] -> to Zipr-core data structures
+
+### zipr-cookie
+
+The opposite of zipr nom, convert zipr-data structures into serializes using cookie-factory
 
 ### zipr-compression
 
@@ -39,18 +43,9 @@ of the structures and helps test that they provide useful interfaces.
 
 ## Aims
 
-This was inspired by looking at the nom parsing library, and that there wasn't a zip implementation.
-So hopefully this fills that gap for that library.
+This was inspired by the nom parsing library, and that there wasn't a zip implementation.
 
 Ideally we provide a nice parser so other zip-like formats can use this as a combinator, in creating there own parsers (eg I believe other formats are just zipped xml).
-
-Features that need to be implemented
-- Other compression types from store/deflate
-- Serialization, using cookie-factory
-- no std support for nom, using miniz-oxide. Should help the code be super portable
-- Further refinements of the data types
-- Some more ergonomic functions
-- MMap to speed up the zipr-cli on large files.
 
 ## Features
 
@@ -59,3 +54,18 @@ Features that need to be implemented
 - Most types are implemented in some form
 - Data driven
 - No standard support for core data structures
+
+## Features that need to be implemented
+
+- Some more ergonomic functions
+- MMap to speed up the zipr-cli on large files.
+
+
+## Contributing
+
+Pull requests are welcome. Though raising an issue first is probably preferred.
+If there is a zip file that fails to parse. A test utilizing the minimal case would be greatly appreciated.
+
+A good contribution is small sample files for the assets folder. Zip isn't always implemented consistently, so 
+while I have tried to follow the spec, other implementations don't really. The more examples we can test
+against, the better we can make it compatible

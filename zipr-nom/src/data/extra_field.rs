@@ -1,6 +1,5 @@
 use nom::{branch::alt, bytes::complete::take, combinator::map, IResult};
-
-use zipr_core::data::extra_field::ExtraField;
+use zipr_data::borrowed::extra_field::ExtraField;
 
 use super::ntfs::parse_ntfs;
 
@@ -20,7 +19,9 @@ pub fn parse_extra_field(input: &[u8]) -> IResult<&[u8], ExtraField<'_>> {
 #[cfg(test)]
 mod tests {
 
-    use zipr_core::data::extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp};
+    use core::convert::TryInto;
+
+    use zipr_data::borrowed::extra_field::ntfs::NTFS;
 
     use super::*;
 
@@ -31,9 +32,9 @@ mod tests {
         let result = parse_extra_field(data);
         let expected = {
             let ntfs = NTFS {
-                atime: WinTimestamp::from_u64_unchecked(132514708162669827),
-                mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
-                ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
+                atime: 132514708162669827.try_into().unwrap(),
+                mtime: 132514707831351075.try_into().unwrap(),
+                ctime: 132514707783459448.try_into().unwrap(),
             };
             ExtraField::NTFS(ntfs)
         };

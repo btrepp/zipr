@@ -1,5 +1,5 @@
 use core::fmt::Debug;
-
+/// Dos Date format as u16.
 #[derive(PartialEq, Copy, Clone)]
 pub struct DosDate(u16);
 

@@ -3,7 +3,7 @@ use nom::{
     combinator::{eof, iterator},
     IResult,
 };
-use zipr_core::data::file::CentralDirectoryEntry;
+use zipr_data::borrowed::file::CentralDirectoryEntry;
 
 use crate::data::parse_directory_header;
 
@@ -19,6 +19,7 @@ fn parse_directory_entries<'a>(
     Ok((input, result))
 }
 
+/// Given the full file, find the central directory entries
 pub fn find_central_directory_entries(
     input: &[u8],
 ) -> IResult<&[u8], Vec<CentralDirectoryEntry<'_>>> {
@@ -35,7 +36,7 @@ mod tests {
     use ascii::AsAsciiStr;
     use core::panic;
     use nom::Finish;
-    use zipr_core::data::ZipPath;
+    use zipr_data::borrowed::ZipPath;
 
     use super::*;
     #[test]

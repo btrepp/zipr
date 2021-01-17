@@ -1,11 +1,12 @@
-use zipr_core::{
-    constants,
-    data::{
+use zipr_data::{
+    borrowed::{
         file::{CentralDirectoryEntry, EndOfCentralDirectory, LocalFileEntry},
         ZipEntry,
     },
-    zip_entry_to_files,
+    constants,
 };
+
+use zipr_domain::zip_entry_to_files;
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub enum ZipPart<'a> {
@@ -121,12 +122,9 @@ where
 mod tests {
 
     use core::panic;
-    use zipr_core::{
-        constants,
-        data::{
-            extra_field::ExtraField, file::CompressedData, CompressionMethod, DosDate, DosTime,
-            ZipEntry, ZipPath,
-        },
+    use zipr_data::{
+        borrowed::{extra_field::ExtraField, file::CompressedData, ZipEntry, ZipPath},
+        constants, CompressionMethod, DosDate, DosTime,
     };
 
     use super::{layout, ZipPart};

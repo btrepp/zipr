@@ -3,12 +3,11 @@
 //! https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
 mod compressed_data;
 
-use super::DosDate;
-use super::DosTime;
-use super::ExtraField;
-use super::{CompressionMethod, ZipPath};
+use super::extra_field::ExtraField;
+use crate::{borrowed::ZipPath, CompressionMethod, DosDate, DosTime};
 use ascii::AsciiStr;
-pub use compressed_data::*;
+
+pub use compressed_data::CompressedData;
 
 /// End of central directory header
 /// This appears at the end of the file

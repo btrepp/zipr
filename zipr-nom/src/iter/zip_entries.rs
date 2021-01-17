@@ -3,11 +3,11 @@ use core::cmp::min;
 use super::CentralDirectoryIteratorError;
 use crate::data::parse_local_file;
 use nom::Finish;
-use zipr_core::{
+use zipr_data::{
+    borrowed::{file::CentralDirectoryEntry, ZipEntry},
     constants,
-    data::{file::CentralDirectoryEntry, ZipEntry},
-    make_zip_entry,
 };
+use zipr_domain::make_zip_entry;
 
 /// An iterator for zip entries in a set of bytes
 /// Will load them lazily, so you can only pull out as much as you need

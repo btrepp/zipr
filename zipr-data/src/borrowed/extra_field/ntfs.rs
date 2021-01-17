@@ -1,4 +1,4 @@
-use super::wintimestamp::WinTimestamp;
+use crate::WinTimestamp;
 
 /// PKWARE Win95/ WinNT Extra Field
 /// Seems to just be timestamps for now?.

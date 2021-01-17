@@ -5,10 +5,10 @@ use cookie_factory::{
     sequence::tuple,
     SerializeFn, WriteContext,
 };
-use wintimestamp::WinTimestamp;
-use zipr_core::{
+use zipr_data::{
+    borrowed::extra_field::{ntfs::NTFS, ExtraField},
     constants::{self, EXTRA_FIELD_NTFS_HEADER},
-    data::extra_field::{ntfs::NTFS, wintimestamp, ExtraField},
+    WinTimestamp,
 };
 
 pub fn extra_field<'a, W: Write + 'a>(input: ExtraField<'a>) -> impl SerializeFn<W> + 'a {
@@ -43,5 +43,5 @@ pub fn ntfs<'a, W: Write + 'a>(input: &NTFS) -> impl SerializeFn<W> + 'a {
 }
 
 pub fn wintimestamp<W: Write>(input: &WinTimestamp) -> impl SerializeFn<W> {
-    le_u64(input.as_u64())
+    le_u64(input.into())
 }

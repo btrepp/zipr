@@ -1,4 +1,4 @@
-use crate::data::{
+use zipr_data::borrowed::{
     file::{CentralDirectoryEntry, LocalFileEntry},
     ZipEntry,
 };

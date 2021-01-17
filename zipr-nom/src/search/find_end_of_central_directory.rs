@@ -1,6 +1,8 @@
 use crate::data::parse_end_of_central_directory;
 use nom::IResult;
-use zipr_core::{constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE, data::file::EndOfCentralDirectory};
+use zipr_data::{
+    borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE,
+};
 
 /// Like parse eocd, but walks backwards in the slice trying to find
 /// where the end of central directory record is
@@ -23,9 +25,8 @@ pub fn find_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCentra
 #[cfg(test)]
 mod tests {
     use ascii::AsciiStr;
-    use zipr_core::data::file::EndOfCentralDirectory;
 
-    use super::find_end_of_central_directory;
+    use super::*;
 
     #[test]
     fn hello_world_store_without_position() {

@@ -1,4 +1,6 @@
-use super::{extra_field::ExtraField, file::CompressedData, DosDate, DosTime, ZipPath};
+use crate::{DosDate, DosTime};
+
+use super::{extra_field::ExtraField, file::CompressedData, ZipPath};
 use ascii::AsciiStr;
 
 /// A logical zip entry

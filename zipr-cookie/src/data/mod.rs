@@ -1,3 +1,8 @@
+//! Serializers for components of the zip file
+//!
+//! Each serializer can be used on its own, though
+//! most likely you want the file serializer from above
+
 mod ascii_char;
 mod central_directory;
 mod compression_method;

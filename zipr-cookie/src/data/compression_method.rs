@@ -1,7 +1,7 @@
 use cookie_factory::{combinator::slice, lib::std::io::Write, SerializeFn};
-use zipr_core::{
+use zipr_data::{
     constants::{COMPRESSION_DEFLATE, COMPRESSION_STORED},
-    data::CompressionMethod,
+    CompressionMethod,
 };
 
 pub fn compression_method<W: Write>(input: &CompressionMethod) -> impl SerializeFn<W> {

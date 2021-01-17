@@ -1,4 +1,4 @@
-use super::CompressionMethod;
+use crate::CompressionMethod;
 
 /// Data structure which represents compressed data
 /// Note: This is will always point to the same 'chunk'

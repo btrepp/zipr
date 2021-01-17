@@ -6,7 +6,7 @@ use cookie_factory::{
     sequence::tuple,
     SerializeFn,
 };
-use zipr_core::{constants::LOCAL_FILE_HEADER_SIGNATURE, data::file::LocalFileEntry};
+use zipr_data::{borrowed::file::LocalFileEntry, constants::LOCAL_FILE_HEADER_SIGNATURE};
 
 pub fn local_file_entry<'a, W: Write + 'a>(
     input: &'a LocalFileEntry<'a>,
@@ -34,8 +34,9 @@ mod tests {
     use ascii::AsAsciiStr;
     use cookie_factory::gen;
     use core::panic;
-    use zipr_core::data::{
-        extra_field::ExtraField, file::CompressedData, DosDate, DosTime, ZipPath,
+    use zipr_data::{
+        borrowed::{extra_field::ExtraField, file::CompressedData, ZipPath},
+        CompressionMethod, DosDate, DosTime,
     };
 
     use super::*;
@@ -43,7 +44,7 @@ mod tests {
     fn hello_world_store() {
         let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let expected = &hello[0..0x2c];
-        let compression_method = zipr_core::data::CompressionMethod::Stored;
+        let compression_method = CompressionMethod::Stored;
         let uncompressed_size = 5;
         let crc32 = 980881731;
         let bytes = "world".as_bytes();

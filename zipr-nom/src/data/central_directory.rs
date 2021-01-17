@@ -2,9 +2,9 @@ use nom::{
     bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser,
     number::complete::le_u16, number::complete::le_u32, IResult,
 };
-use zipr_core::{
-    constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE,
-    data::{file::CentralDirectoryEntry, DosDate, DosTime},
+use zipr_data::{
+    borrowed::file::CentralDirectoryEntry, constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, DosDate,
+    DosTime,
 };
 
 use super::{
@@ -60,12 +60,15 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 
 #[cfg(test)]
 mod tests {
-    use core::panic;
+    use core::{convert::TryInto, panic};
 
     use ascii::{AsAsciiStr, AsciiStr};
-    use zipr_core::data::{
-        extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
-        ZipPath,
+    use zipr_data::{
+        borrowed::{
+            extra_field::{ntfs::NTFS, ExtraField},
+            ZipPath,
+        },
+        CompressionMethod,
     };
 
     use super::*;
@@ -88,11 +91,11 @@ mod tests {
             file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
-                atime: WinTimestamp::from_u64_unchecked(132514708162669827),
-                mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
-                ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
+                atime: 132514708162669827.try_into().unwrap(),
+                mtime: 132514707831351075.try_into().unwrap(),
+                ctime: 132514707783459448.try_into().unwrap(),
             }),
-            compression_method: zipr_core::data::CompressionMethod::Stored,
+            compression_method: CompressionMethod::Stored,
             general_purpose: 0,
             relative_offset: 0,
         };
@@ -118,11 +121,11 @@ mod tests {
             file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
             comment: AsciiStr::from_ascii("").unwrap(),
             extra_field: ExtraField::NTFS(NTFS {
-                atime: WinTimestamp::from_u64(132517337704649244).unwrap(),
-                mtime: WinTimestamp::from_u64(132517337704649244).unwrap(),
-                ctime: WinTimestamp::from_u64(132514707783459448).unwrap(),
+                atime: 132517337704649244.try_into().unwrap(),
+                mtime: 132517337704649244.try_into().unwrap(),
+                ctime: 132514707783459448.try_into().unwrap(),
             }),
-            compression_method: zipr_core::data::CompressionMethod::Deflate,
+            compression_method: CompressionMethod::Deflate,
             general_purpose: 0,
             relative_offset: 0,
         };

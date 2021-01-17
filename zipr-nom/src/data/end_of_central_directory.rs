@@ -1,5 +1,6 @@
-use zipr_core::constants::END_OF_CENTRAL_DIRECTORY_HEADER;
-use zipr_core::data::file::EndOfCentralDirectory;
+use zipr_data::{
+    borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_HEADER,
+};
 
 use nom::{
     bytes::complete::tag,
@@ -39,8 +40,8 @@ pub fn parse_end_of_central_directory(input: &[u8]) -> IResult<&[u8], EndOfCentr
 
 #[cfg(test)]
 mod tests {
-    use zipr_core::{
-        constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE, data::file::EndOfCentralDirectory,
+    use zipr_data::{
+        borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE,
     };
 
     use super::parse_end_of_central_directory;
