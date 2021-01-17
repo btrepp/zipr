@@ -8,5 +8,6 @@ edition = "2018"
 
 [dependencies]
 nom = { version = "6.0.1", default-features = false }
-zipr-core = {path="../zipr-core"}
+zipr-data = {path="../zipr-data"}
+zipr-domain = {path="../zipr-domain"}
 ascii = {version="1.0.0", default-features = false}

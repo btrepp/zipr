@@ -6,8 +6,9 @@ use cookie_factory::{
     sequence::tuple,
     SerializeFn,
 };
-use zipr_core::constants::END_OF_CENTRAL_DIRECTORY_HEADER;
-use zipr_core::data::file::EndOfCentralDirectory;
+use zipr_data::{
+    borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_HEADER,
+};
 
 pub fn end_of_central_directory<'a, W: Write + 'a>(
     input: &'a EndOfCentralDirectory,
@@ -30,8 +31,8 @@ mod tests {
     use super::*;
     use ascii::AsciiStr;
     use cookie_factory::gen;
-    use zipr_core::{
-        constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE, data::file::EndOfCentralDirectory,
+    use zipr_data::{
+        borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE,
     };
 
     const MINIMAL: [u8; 22] = [

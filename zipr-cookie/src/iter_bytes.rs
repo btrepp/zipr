@@ -1,5 +1,5 @@
 use cookie_factory::{lib::std::io::Write, multi::all, SerializeFn, WriteContext};
-use zipr_core::data::ZipEntry;
+use zipr_data::borrowed::ZipEntry;
 
 use crate::{
     data::{central_directory_entry, end_of_central_directory, local_file_entry},

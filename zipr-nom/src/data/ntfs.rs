@@ -2,9 +2,9 @@ use nom::{
     bytes::complete::tag, combinator::map, number::complete::le_u32, number::complete::le_u64,
     IResult,
 };
-use zipr_core::{
+use zipr_data::{
+    borrowed::extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp},
     constants::EXTRA_FIELD_NTFS_HEADER,
-    data::extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp},
 };
 
 pub fn parse_ntfs(input: &[u8]) -> IResult<&[u8], NTFS> {

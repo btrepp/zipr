@@ -3,9 +3,10 @@ use nom::{
     number::complete::le_u16, number::complete::le_u32, IResult,
 };
 
-use zipr_core::{
+use zipr_data::{
+    borrowed::{file::CompressedData, file::LocalFileEntry},
     constants::LOCAL_FILE_HEADER_SIGNATURE,
-    data::{file::CompressedData, file::LocalFileEntry, DosDate, DosTime},
+    DosDate, DosTime,
 };
 
 use super::{
@@ -50,7 +51,10 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
 mod tests {
     use ascii::AsAsciiStr;
     use core::panic;
-    use zipr_core::data::{extra_field::ExtraField, ZipPath};
+    use zipr_data::{
+        borrowed::{extra_field::ExtraField, ZipPath},
+        CompressionMethod, DosDate, DosTime,
+    };
 
     use super::*;
     #[test]
@@ -58,7 +62,7 @@ mod tests {
         let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let data = &hello[0..0x2c];
         let result = parse_local_file(data);
-        let compression_method = zipr_core::data::CompressionMethod::Stored;
+        let compression_method = CompressionMethod::Stored;
         let uncompressed_size = 5;
         let crc32 = 980881731;
         let bytes = "world".as_bytes();

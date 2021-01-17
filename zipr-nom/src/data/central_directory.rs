@@ -2,9 +2,9 @@ use nom::{
     bytes::complete::tag, bytes::complete::take, combinator::map, combinator::map_parser,
     number::complete::le_u16, number::complete::le_u32, IResult,
 };
-use zipr_core::{
-    constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE,
-    data::{file::CentralDirectoryEntry, DosDate, DosTime},
+use zipr_data::{
+    borrowed::file::CentralDirectoryEntry, constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, DosDate,
+    DosTime,
 };
 
 use super::{
@@ -63,9 +63,12 @@ mod tests {
     use core::panic;
 
     use ascii::{AsAsciiStr, AsciiStr};
-    use zipr_core::data::{
-        extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
-        ZipPath,
+    use zipr_data::{
+        borrowed::{
+            extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
+            ZipPath,
+        },
+        CompressionMethod,
     };
 
     use super::*;
@@ -92,7 +95,7 @@ mod tests {
                 mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
                 ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
             }),
-            compression_method: zipr_core::data::CompressionMethod::Stored,
+            compression_method: CompressionMethod::Stored,
             general_purpose: 0,
             relative_offset: 0,
         };
@@ -122,7 +125,7 @@ mod tests {
                 mtime: WinTimestamp::from_u64(132517337704649244).unwrap(),
                 ctime: WinTimestamp::from_u64(132514707783459448).unwrap(),
             }),
-            compression_method: zipr_core::data::CompressionMethod::Deflate,
+            compression_method: CompressionMethod::Deflate,
             general_purpose: 0,
             relative_offset: 0,
         };

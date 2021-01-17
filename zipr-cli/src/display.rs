@@ -2,7 +2,7 @@ use std::str::from_utf8;
 
 use comfy_table::Table;
 use zipr::{
-    core::data::{ZipEntry, ZipPath},
+    data::borrowed::{ZipEntry, ZipPath},
     std::{ToNaiveDate, ToNaiveTime},
 };
 

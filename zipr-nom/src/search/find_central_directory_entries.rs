@@ -3,7 +3,7 @@ use nom::{
     combinator::{eof, iterator},
     IResult,
 };
-use zipr_core::data::file::CentralDirectoryEntry;
+use zipr_data::borrowed::file::CentralDirectoryEntry;
 
 use crate::data::parse_directory_header;
 
@@ -35,7 +35,7 @@ mod tests {
     use ascii::AsAsciiStr;
     use core::panic;
     use nom::Finish;
-    use zipr_core::data::ZipPath;
+    use zipr_data::borrowed::ZipPath;
 
     use super::*;
     #[test]

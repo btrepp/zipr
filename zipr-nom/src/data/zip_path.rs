@@ -4,7 +4,7 @@ use nom::{
     combinator::{map_parser, map_res},
     IResult,
 };
-use zipr_core::data::{ZipPath, ZipPathError};
+use zipr_data::borrowed::{ZipPath, ZipPathError};
 
 use super::ascii_char::parse_ascii_chars;
 

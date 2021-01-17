@@ -5,14 +5,17 @@ use crate::{
     error::AppError,
 };
 use anyhow::Result;
-use ascii::AsAsciiStr;
+use ascii::{AsAsciiStr, AsciiStr};
 use nom::Finish;
 use std::path::Path;
 use zipr::{
     compression::DecompressToVec,
-    core::data::{
-        file::{CompressedData, LocalFileEntry},
-        AsciiStr, CompressionMethod, ZipEntry,
+    data::{
+        borrowed::{
+            file::{CompressedData, LocalFileEntry},
+            ZipEntry,
+        },
+        CompressionMethod,
     },
     nom::{
         data::parse_directory_header, data::parse_end_of_central_directory, data::parse_local_file,
@@ -123,10 +126,10 @@ pub fn add_files<P: AsRef<Path>>(
         compressed_data: CompressedData<'a>,
     ) -> Result<ZipEntry<'a>, anyhow::Error> {
         let comment = AsciiStr::from_ascii("".as_bytes()).unwrap();
-        let extra_field = zipr::core::data::extra_field::ExtraField::Unknown(&[]);
-        let file_modification_time = zipr::core::data::DosTime::from_u16_unchecked(0);
-        let file_modification_date = zipr::core::data::DosDate::from_u16_unchecked(0);
-        let file_name = zipr::core::data::ZipPath::create_from_string(
+        let extra_field = zipr::data::borrowed::extra_field::ExtraField::Unknown(&[]);
+        let file_modification_time = zipr::data::DosTime::from_u16_unchecked(0);
+        let file_modification_date = zipr::data::DosDate::from_u16_unchecked(0);
+        let file_name = zipr::data::borrowed::ZipPath::create_from_string(
             path.to_str().unwrap().as_ascii_str().unwrap(),
         )
         .unwrap();

@@ -1,6 +1,5 @@
 use nom::{branch::alt, bytes::complete::take, combinator::map, IResult};
-
-use zipr_core::data::extra_field::ExtraField;
+use zipr_data::borrowed::extra_field::ExtraField;
 
 use super::ntfs::parse_ntfs;
 
@@ -20,7 +19,7 @@ pub fn parse_extra_field(input: &[u8]) -> IResult<&[u8], ExtraField<'_>> {
 #[cfg(test)]
 mod tests {
 
-    use zipr_core::data::extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp};
+    use zipr_data::borrowed::extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp};
 
     use super::*;
 

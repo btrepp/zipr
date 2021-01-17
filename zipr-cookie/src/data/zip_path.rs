@@ -1,6 +1,6 @@
 use cookie_factory::lib::std::io::Write;
 use cookie_factory::{combinator::slice, SerializeFn};
-use zipr_core::data::ZipPath;
+use zipr_data::borrowed::ZipPath;
 
 pub fn zip_path<'a, W: 'a>(characters: &'a ZipPath<'a>) -> impl SerializeFn<W> + 'a
 where

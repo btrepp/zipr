@@ -1,6 +1,6 @@
 use std::{fmt::Display, num::ParseIntError, path::PathBuf, str::FromStr};
 use structopt::StructOpt;
-use zipr::core::data::CompressionMethod;
+use zipr::data::CompressionMethod;
 
 #[derive(Debug)]
 pub enum InspectKind {

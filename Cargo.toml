@@ -2,7 +2,8 @@
 
 members = [
     "zipr",
-    "zipr-core",
+    "zipr-data",
+    "zipr-domain",
     "zipr-nom",
     "zipr-cookie",
     "zipr-cli",

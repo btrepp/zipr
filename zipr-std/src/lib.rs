@@ -1,5 +1,6 @@
 use std::{path::Path, str::from_utf8};
-use zipr_core::data::{DosDate, DosTime, ZipPath};
+
+use zipr_data::{borrowed::ZipPath, DosDate, DosTime};
 pub trait ToPath {
     fn to_path(&self) -> &Path;
 }

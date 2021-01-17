@@ -6,7 +6,9 @@ use cookie_factory::{
     sequence::tuple,
     SerializeFn,
 };
-use zipr_core::{constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, data::file::CentralDirectoryEntry};
+use zipr_data::{
+    borrowed::file::CentralDirectoryEntry, constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE,
+};
 
 pub fn central_directory_entry<'a, W: Write + 'a>(
     input: &'a CentralDirectoryEntry,
@@ -41,9 +43,12 @@ mod tests {
 
     use ascii::{AsAsciiStr, AsciiStr};
     use cookie_factory::gen;
-    use zipr_core::data::{
-        extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
-        DosDate, DosTime, ZipPath,
+    use zipr_data::{
+        borrowed::{
+            extra_field::{ntfs::NTFS, wintimestamp::WinTimestamp, ExtraField},
+            ZipPath,
+        },
+        CompressionMethod, DosDate, DosTime,
     };
 
     use super::*;
@@ -69,7 +74,7 @@ mod tests {
                 mtime: WinTimestamp::from_u64_unchecked(132514707831351075),
                 ctime: WinTimestamp::from_u64_unchecked(132514707783459448),
             }),
-            compression_method: zipr_core::data::CompressionMethod::Stored,
+            compression_method: CompressionMethod::Stored,
             general_purpose: 0,
             relative_offset: 0,
         };
@@ -101,7 +106,7 @@ mod tests {
                 mtime: WinTimestamp::from_u64(132517337704649244).unwrap(),
                 ctime: WinTimestamp::from_u64(132514707783459448).unwrap(),
             }),
-            compression_method: zipr_core::data::CompressionMethod::Deflate,
+            compression_method: CompressionMethod::Deflate,
             general_purpose: 0,
             relative_offset: 0,
         };

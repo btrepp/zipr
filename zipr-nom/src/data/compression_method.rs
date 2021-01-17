@@ -1,8 +1,8 @@
 use nom::{branch::alt, bytes::complete::tag, combinator::map, IResult};
 
-use zipr_core::{
+use zipr_data::{
     constants::{COMPRESSION_DEFLATE, COMPRESSION_STORED},
-    data::CompressionMethod,
+    CompressionMethod,
 };
 
 /// Uses alternatives to try and pass the extra field.

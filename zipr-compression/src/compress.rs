@@ -1,6 +1,6 @@
 use crc::crc32;
 use miniz_oxide::deflate::compress_to_vec;
-use zipr_core::data::{file::CompressedData, CompressionMethod};
+use zipr_data::{borrowed::file::CompressedData, CompressionMethod};
 
 /// Compresses the data using deflate. Note: requires a buffer to store the newly deflated data in
 pub fn deflate<'a>(output: &'a mut alloc::vec::Vec<u8>, bytes: &'_ [u8]) -> CompressedData<'a> {
