@@ -6,9 +6,18 @@ edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[features]
+default = ["std", "compression", "nom", "cookie-factory"]
+
+std = ["zipr-std"]
+compression = ["zipr-compression"]
+nom = ["zipr-nom"]
+cookie-factory = ["zipr-cookie"]
+
 [dependencies]
 zipr-data = {path="../zipr-data"}
-zipr-nom = {path="../zipr-nom"}
-zipr-std = {path="../zipr-std"}
-zipr-compression = {path="../zipr-compression"}
-zipr-cookie = {path="../zipr-cookie"}
+zipr-nom = {path="../zipr-nom", optional=true}
+zipr-std = {path="../zipr-std", optional=true}
+zipr-compression = {path="../zipr-compression", optional=true}
+zipr-cookie = {path="../zipr-cookie",optional=true}
+zipr-domain = {path="../zipr-domain"}
