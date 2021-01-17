@@ -1,15 +1,15 @@
 mod args;
+mod commands;
 mod display;
 mod error;
-mod procedural;
 mod sequence;
-use anyhow::Result;
 use args::zipr::Opt;
+use error::AppResult;
 use std::env;
 
 const UNZIP: &str = "unzip";
 
-fn main() -> Result<()> {
+fn main() -> AppResult<()> {
     let args: Vec<String> = env::args().collect();
     let head = args.first().map(String::as_str);
 
@@ -22,23 +22,23 @@ fn main() -> Result<()> {
 
     // Run logic;
     match opt {
-        Opt::List { file } => procedural::list_files(file),
-        Opt::ShowComment { file } => procedural::show_comment(file),
+        Opt::List { file } => commands::list_files(file),
+        Opt::ShowComment { file } => commands::show_comment(file),
         Opt::Extract {
             file,
             files,
             output,
-        } => procedural::extract_files(file, files, output),
+        } => commands::extract_files(file, files, output),
         Opt::Add {
             file,
             files,
             compress,
-        } => procedural::add_files(file, files, compress),
+        } => commands::add_files(file, files, compress),
         Opt::Inspect {
             file,
             offset,
             kind,
             take,
-        } => procedural::inspect(file, kind, offset.0, take.map(|x| x.into())),
+        } => commands::inspect(file, kind, offset.0, take.map(|x| x.into())),
     }
 }

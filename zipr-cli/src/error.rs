@@ -1,13 +1,20 @@
 use std::fmt::Display;
 use zipr::{compression::DecompressError, nom::iter::ZipEntryIteratorError};
 
+pub type AppResult<T> = Result<T, AppError>;
 #[derive(Debug)]
 pub enum AppError {
     Decompression(DecompressError),
     NomError(nom::error::Error<Vec<u8>>),
     ZipIteratorError(ZipEntryIteratorError),
+    IOError(std::io::Error),
 }
 
+impl From<std::io::Error> for AppError {
+    fn from(io: std::io::Error) -> Self {
+        AppError::IOError(io)
+    }
+}
 impl From<ZipEntryIteratorError> for AppError {
     fn from(z: ZipEntryIteratorError) -> Self {
         AppError::ZipIteratorError(z)
