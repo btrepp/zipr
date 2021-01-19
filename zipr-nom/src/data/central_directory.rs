@@ -9,14 +9,14 @@ use zipr_data::{
 
 use super::{
     ascii_char::parse_ascii_chars, compression_method::parse_compression_method,
-    extra_field::parse_extra_field, zip_path::parse_zip_path,
+    extra_field::parse_extra_field, parse_version, zip_path::parse_zip_path,
 };
 
 /// Parses a single directory header
 pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEntry> {
     let (input, _) = tag(CENTRAL_DIRECTORY_HEADER_SIGNATURE)(input)?;
-    let (input, version_made_by) = le_u16(input)?;
-    let (input, version_needed) = le_u16(input)?;
+    let (input, version_made_by) = parse_version(input)?;
+    let (input, version_needed) = parse_version(input)?;
     let (input, general_purpose) = le_u16(input)?;
     let (input, compression_method) = map_parser(take(2u16), parse_compression_method)(input)?;
     let (input, file_modification_time) = map(le_u16, DosTime::from_u16_unchecked)(input)?;
@@ -68,7 +68,7 @@ mod tests {
             extra_field::{ntfs::NTFS, ExtraField},
             ZipPath,
         },
-        CompressionMethod,
+        CompressionMethod, HostCompatibility, Version, ZipSpecification,
     };
 
     use super::*;
@@ -79,8 +79,20 @@ mod tests {
         let data = &hello[0x2c..0x87];
         let result = parse_directory_header(data);
         let expected = CentralDirectoryEntry {
-            version_made_by: 63,
-            version_needed: 10,
+            version_made_by: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 6u8.try_into().unwrap(),
+                    minor: 3u8.try_into().unwrap(),
+                },
+            },
+            version_needed: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 1u8.try_into().unwrap(),
+                    minor: 0u8.try_into().unwrap(),
+                },
+            },
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),
             crc32: 980881731,
@@ -109,8 +121,20 @@ mod tests {
         let data = &hello[0x3d..0x3d + 91];
         let result = parse_directory_header(data);
         let expected = CentralDirectoryEntry {
-            version_made_by: 63,
-            version_needed: 20,
+            version_made_by: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 6u8.try_into().unwrap(),
+                    minor: 3u8.try_into().unwrap(),
+                },
+            },
+            version_needed: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 2u8.try_into().unwrap(),
+                    minor: 0u8.try_into().unwrap(),
+                },
+            },
             file_modification_time: DosTime::from_u16_unchecked(43312),
             file_modification_date: DosDate::from_u16_unchecked(20870),
             crc32: 810231625,

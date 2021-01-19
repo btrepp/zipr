@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 ascii = {version="1.0.0", default-features = false}
+typenum = {version="1.12.0"}

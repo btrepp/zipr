@@ -10,13 +10,13 @@ use zipr_data::{
 };
 
 use super::{
-    compression_method::parse_compression_method, extra_field::parse_extra_field,
+    compression_method::parse_compression_method, extra_field::parse_extra_field, parse_version,
     zip_path::parse_zip_path,
 };
 
 pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
     let (input, _) = tag(LOCAL_FILE_HEADER_SIGNATURE)(input)?;
-    let (input, version_needed) = le_u16(input)?;
+    let (input, version_needed) = parse_version(input)?;
     let (input, general_purpose) = le_u16(input)?;
     let (input, compression_method) = parse_compression_method(input)?;
     let (input, file_modification_time) = map(le_u16, DosTime::from_u16_unchecked)(input)?;
@@ -50,10 +50,10 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
 #[cfg(test)]
 mod tests {
     use ascii::AsAsciiStr;
-    use core::panic;
+    use core::{convert::TryInto, panic};
     use zipr_data::{
         borrowed::{extra_field::ExtraField, ZipPath},
-        CompressionMethod, DosDate, DosTime,
+        CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,
     };
 
     use super::*;
@@ -70,7 +70,13 @@ mod tests {
             CompressedData::create_unchecked(uncompressed_size, compression_method, crc32, bytes);
 
         let expected = LocalFileEntry {
-            version_needed: 10,
+            version_needed: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 1u8.try_into().unwrap(),
+                    minor: 0u8.try_into().unwrap(),
+                },
+            },
             general_purpose: 0,
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),

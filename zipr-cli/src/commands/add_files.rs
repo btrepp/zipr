@@ -4,11 +4,11 @@ use crate::{
 };
 use ascii::{AsAsciiStr, AsciiStr};
 
-use std::path::Path;
+use std::{convert::TryInto, path::Path};
 use zipr::{
     data::{
         borrowed::{file::CompressedData, ZipEntry},
-        CompressionMethod,
+        CompressionMethod, HostCompatibility, Version, ZipSpecification,
     },
     std::ToPath,
 };
@@ -29,9 +29,17 @@ pub fn add_files<P: AsRef<Path>>(
         )
         .unwrap();
 
+        let version = Version {
+            host: HostCompatibility::MSDOS,
+            spec: ZipSpecification {
+                major: 2u8.try_into().unwrap(),
+                minor: 0u8.try_into().unwrap(),
+            },
+        };
+
         let entry = ZipEntry {
-            version_made_by: 0,
-            version_needed: 0,
+            version_made_by: version,
+            version_needed: version,
             general_purpose: 0,
             file_modification_time,
             file_modification_date,

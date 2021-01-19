@@ -4,7 +4,7 @@
 mod compressed_data;
 
 use super::extra_field::ExtraField;
-use crate::{borrowed::ZipPath, CompressionMethod, DosDate, DosTime};
+use crate::{borrowed::ZipPath, CompressionMethod, DosDate, DosTime, Version};
 use ascii::AsciiStr;
 
 pub use compressed_data::CompressedData;
@@ -26,8 +26,8 @@ pub struct EndOfCentralDirectory<'a> {
 /// and what properties it has
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct CentralDirectoryEntry<'a> {
-    pub version_made_by: u16,
-    pub version_needed: u16,
+    pub version_made_by: Version,
+    pub version_needed: Version,
     pub general_purpose: u16,
     pub compression_method: CompressionMethod,
     pub file_modification_time: DosTime,
@@ -49,7 +49,7 @@ pub struct CentralDirectoryEntry<'a> {
 /// a file
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub struct LocalFileEntry<'a> {
-    pub version_needed: u16,
+    pub version_needed: Version,
     pub general_purpose: u16,
     pub file_modification_time: DosTime,
     pub file_modification_date: DosDate,
