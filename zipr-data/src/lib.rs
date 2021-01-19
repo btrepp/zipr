@@ -11,13 +11,16 @@
 #![no_std]
 pub mod borrowed;
 pub mod constants;
+mod util;
 
 mod compression_method;
 mod dos_date;
 mod dos_time;
+mod version;
 mod wintimestamp;
 
 pub use compression_method::*;
 pub use dos_date::*;
 pub use dos_time::*;
+pub use version::*;
 pub use wintimestamp::*;

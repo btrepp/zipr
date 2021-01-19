@@ -10,6 +10,7 @@ mod end_of_central_directory;
 mod extra_field;
 mod local_file;
 mod ntfs;
+mod version;
 mod zip_path;
 
 pub use central_directory::parse_directory_header;
@@ -18,4 +19,5 @@ pub use end_of_central_directory::parse_end_of_central_directory;
 pub use extra_field::parse_extra_field;
 pub use local_file::parse_local_file;
 pub use ntfs::parse_ntfs;
+pub use version::parse_version;
 pub use zip_path::parse_zip_path;

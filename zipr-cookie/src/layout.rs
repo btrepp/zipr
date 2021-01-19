@@ -121,10 +121,11 @@ where
 #[cfg(test)]
 mod tests {
 
-    use core::panic;
+    use core::{convert::TryInto, panic};
     use zipr_data::{
         borrowed::{extra_field::ExtraField, file::CompressedData, ZipEntry, ZipPath},
-        constants, CompressionMethod, DosDate, DosTime,
+        constants, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
+        ZipSpecification,
     };
 
     use super::{layout, ZipPart};
@@ -135,7 +136,13 @@ mod tests {
             CompressedData::create_unchecked(5, CompressionMethod::Stored, 0x3610A686, bytes);
 
         let input = ZipEntry {
-            version_made_by: 62,
+            version_made_by: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 6u8.try_into().unwrap(),
+                    minor: 3u8.try_into().unwrap(),
+                },
+            },
             version_needed: 19,
             general_purpose: 0,
             file_modification_date: DosDate::from_u16_unchecked(0),

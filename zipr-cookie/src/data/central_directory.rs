@@ -1,4 +1,6 @@
-use super::{ascii_char::ascii_chars, compression_method, extra_field, extra_field_len, zip_path};
+use super::{
+    ascii_char::ascii_chars, compression_method, extra_field, extra_field_len, version, zip_path,
+};
 use cookie_factory::{
     bytes::{le_u16, le_u32},
     combinator::slice,
@@ -15,7 +17,7 @@ pub fn central_directory_entry<'a, W: Write + 'a>(
 ) -> impl SerializeFn<W> + 'a {
     tuple((
         slice(CENTRAL_DIRECTORY_HEADER_SIGNATURE),
-        le_u16(input.version_made_by),
+        version(input.version_made_by),
         le_u16(input.version_needed),
         le_u16(input.general_purpose),
         compression_method(&input.compression_method),
@@ -48,7 +50,7 @@ mod tests {
             extra_field::{ntfs::NTFS, ExtraField},
             ZipPath,
         },
-        CompressionMethod, DosDate, DosTime,
+        CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,
     };
 
     use super::*;
@@ -58,7 +60,13 @@ mod tests {
         let hello = include_bytes!("../../../assets/hello_world_store.zip");
         let expected = &hello[0x2c..0x87];
         let input = CentralDirectoryEntry {
-            version_made_by: 63,
+            version_made_by: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 6u8.try_into().unwrap(),
+                    minor: 3u8.try_into().unwrap(),
+                },
+            },
             version_needed: 10,
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),
@@ -90,7 +98,13 @@ mod tests {
         let hello = include_bytes!("../../../assets/hello_world_deflate.zip");
         let expected = &hello[0x3d..0x3d + 91];
         let input = CentralDirectoryEntry {
-            version_made_by: 63,
+            version_made_by: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 6u8.try_into().unwrap(),
+                    minor: 3u8.try_into().unwrap(),
+                },
+            },
             version_needed: 20,
             file_modification_time: DosTime::from_u16_unchecked(43312),
             file_modification_date: DosDate::from_u16_unchecked(20870),
