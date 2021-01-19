@@ -12,7 +12,7 @@ use ascii::AsciiStr;
 #[derive(Debug, PartialEq)]
 pub struct ZipEntry<'a> {
     pub version_made_by: Version,
-    pub version_needed: u16,
+    pub version_needed: Version,
     pub general_purpose: u16,
     pub file_modification_time: DosTime,
     pub file_modification_date: DosDate,

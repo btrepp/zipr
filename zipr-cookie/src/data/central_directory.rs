@@ -18,7 +18,7 @@ pub fn central_directory_entry<'a, W: Write + 'a>(
     tuple((
         slice(CENTRAL_DIRECTORY_HEADER_SIGNATURE),
         version(input.version_made_by),
-        le_u16(input.version_needed),
+        version(input.version_needed),
         le_u16(input.general_purpose),
         compression_method(&input.compression_method),
         le_u16(input.file_modification_time.as_bytes()),
@@ -67,7 +67,13 @@ mod tests {
                     minor: 3u8.try_into().unwrap(),
                 },
             },
-            version_needed: 10,
+            version_needed: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 1u8.try_into().unwrap(),
+                    minor: 0u8.try_into().unwrap(),
+                },
+            },
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),
             crc32: 980881731,
@@ -105,7 +111,13 @@ mod tests {
                     minor: 3u8.try_into().unwrap(),
                 },
             },
-            version_needed: 20,
+            version_needed: Version {
+                host: HostCompatibility::MSDOS,
+                spec: ZipSpecification {
+                    major: 2u8.try_into().unwrap(),
+                    minor: 0u8.try_into().unwrap(),
+                },
+            },
             file_modification_time: DosTime::from_u16_unchecked(43312),
             file_modification_date: DosDate::from_u16_unchecked(20870),
             crc32: 810231625,

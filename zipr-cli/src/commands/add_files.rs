@@ -29,15 +29,17 @@ pub fn add_files<P: AsRef<Path>>(
         )
         .unwrap();
 
-        let entry = ZipEntry {
-            version_made_by: Version {
-                host: HostCompatibility::MSDOS,
-                spec: ZipSpecification {
-                    major: 1u8.try_into().unwrap(),
-                    minor: 0u8.try_into().unwrap(),
-                },
+        let version = Version {
+            host: HostCompatibility::MSDOS,
+            spec: ZipSpecification {
+                major: 2u8.try_into().unwrap(),
+                minor: 0u8.try_into().unwrap(),
             },
-            version_needed: 0,
+        };
+
+        let entry = ZipEntry {
+            version_made_by: version,
+            version_needed: version,
             general_purpose: 0,
             file_modification_time,
             file_modification_date,
