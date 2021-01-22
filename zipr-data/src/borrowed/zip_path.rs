@@ -1,4 +1,4 @@
-use ascii::AsciiStr;
+use crate::CP437Str;
 
 /// A borrow of a ascii str
 ///
@@ -6,27 +6,25 @@ use ascii::AsciiStr;
 /// zip file. Note this is a subset of path or asciistr.
 /// as there are invalid states possible
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct ZipPath<'a>(&'a AsciiStr);
+pub struct ZipPath<'a>(CP437Str<'a>);
 
 /// Error for when a string is not a valid zippath
 #[derive(Debug)]
 pub enum ZipPathError {}
 
 impl<'a> ZipPath<'a> {
-    pub fn create_from_string(string: &'a AsciiStr) -> Result<Self, ZipPathError> {
+    /// The name of the file, with optional relative path.
+    /// The path stored MUST NOT contain a drive or
+    /// device letter, or a leading slash.  All slashes
+    /// MUST be forward slashes '/' as opposed to
+    /// backwards slashes '\' for compatibility with Amiga
+    /// and UNIX file systems etc.
+    pub fn from_cp437(string: CP437Str<'a>) -> Result<Self, ZipPathError> {
         // need to validate this in future
         Ok(ZipPath(string))
     }
 
-    pub fn to_bytes(&self) -> &[u8] {
-        self.0.as_bytes()
-    }
-
-    pub fn len(&self) -> usize {
-        self.to_bytes().len()
-    }
-
-    pub fn is_empty(&self) -> bool {
-        self.0.is_empty()
+    pub fn to_cp437(&self) -> CP437Str<'a> {
+        self.0
     }
 }

@@ -1,15 +1,15 @@
-use std::{path::Path, str::from_utf8};
+use std::{path::PathBuf, str::from_utf8};
 
 use zipr_data::{borrowed::ZipPath, DosDate, DosTime};
 pub trait ToPath {
-    fn to_path(&self) -> &Path;
+    fn to_path(&self) -> PathBuf;
 }
 
 impl<'a> ToPath for ZipPath<'a> {
-    fn to_path(&self) -> &Path {
-        let bytes = self.to_bytes();
-        let string = from_utf8(bytes).unwrap();
-        Path::new(string)
+    fn to_path(&self) -> PathBuf {
+        let bytes = self.to_cp437().as_slice().to_owned();
+        let string = from_utf8(&bytes).unwrap().to_owned();
+        PathBuf::new().join(string)
     }
 }
 

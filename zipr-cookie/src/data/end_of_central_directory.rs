@@ -1,4 +1,3 @@
-use super::ascii_char::ascii_chars;
 use cookie_factory::{
     bytes::{le_u16, le_u32},
     combinator::slice,
@@ -9,6 +8,8 @@ use cookie_factory::{
 use zipr_data::{
     borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_HEADER,
 };
+
+use super::cp437_chars;
 
 pub fn end_of_central_directory<'a, W: Write + 'a>(
     input: &'a EndOfCentralDirectory,
@@ -21,18 +22,18 @@ pub fn end_of_central_directory<'a, W: Write + 'a>(
         le_u16(input.total_number_records),
         le_u32(input.size_of_directory),
         le_u32(input.offset_start_directory),
-        le_u16(input.comment.len() as u16),
-        ascii_chars(input.comment),
+        le_u16(input.comment.as_slice().len() as u16),
+        cp437_chars(&input.comment),
     ))
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ascii::AsciiStr;
     use cookie_factory::gen;
     use zipr_data::{
         borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE,
+        CP437Str,
     };
 
     const MINIMAL: [u8; 22] = [
@@ -46,7 +47,7 @@ mod tests {
             total_number_records: 0,
             size_of_directory: 0,
             offset_start_directory: 0,
-            comment: AsciiStr::from_ascii(b"").unwrap(),
+            comment: CP437Str::from_slice(b""),
         };
         let mut buffer = [0u8; END_OF_CENTRAL_DIRECTORY_MIN_SIZE];
         let serializer = end_of_central_directory(&input);

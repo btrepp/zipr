@@ -1,7 +1,6 @@
-use crate::{DosDate, DosTime, Version};
+use crate::{CP437Str, DosDate, DosTime, Version};
 
 use super::{extra_field::ExtraField, file::CompressedData, ZipPath};
-use ascii::AsciiStr;
 
 /// A logical zip entry
 /// This contains all the information about the zip entry
@@ -20,6 +19,6 @@ pub struct ZipEntry<'a> {
     pub external_file_attributes: u32,
     pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
-    pub comment: &'a AsciiStr,
+    pub comment: CP437Str<'a>,
     pub compressed_data: CompressedData<'a>,
 }

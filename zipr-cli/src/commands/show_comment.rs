@@ -14,6 +14,8 @@ where
     let (_, file) = find_end_of_central_directory(&bytes)
         .finish()
         .map_err(Into::<AppError>::into)?;
-    println!("{}", file.comment.to_string());
+    let comment = file.comment.as_slice();
+    let comment = String::from_utf8(comment.into()).unwrap();
+    println!("{}", comment);
     Ok(())
 }

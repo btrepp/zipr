@@ -3,13 +3,13 @@ use nom::{
     number::complete::le_u16, number::complete::le_u32, IResult,
 };
 use zipr_data::{
-    borrowed::file::CentralDirectoryEntry, constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, DosDate,
-    DosTime,
+    borrowed::file::CentralDirectoryEntry, constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, CP437Str,
+    DosDate, DosTime,
 };
 
 use super::{
-    ascii_char::parse_ascii_chars, compression_method::parse_compression_method,
-    extra_field::parse_extra_field, parse_version, zip_path::parse_zip_path,
+    compression_method::parse_compression_method, extra_field::parse_extra_field, parse_version,
+    zip_path::parse_zip_path,
 };
 
 /// Parses a single directory header
@@ -37,7 +37,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 
     let (input, extra_field) = map_parser(take(extra_field_length), parse_extra_field)(input)?;
 
-    let (input, comment) = map_parser(take(comment_length), parse_ascii_chars)(input)?;
+    let (input, comment) = map(take(comment_length), CP437Str::from_slice)(input)?;
     let result = CentralDirectoryEntry {
         version_made_by,
         version_needed,
@@ -62,7 +62,6 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 mod tests {
     use core::{convert::TryInto, panic};
 
-    use ascii::{AsAsciiStr, AsciiStr};
     use zipr_data::{
         borrowed::{
             extra_field::{ntfs::NTFS, ExtraField},
@@ -100,8 +99,8 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
-            comment: AsciiStr::from_ascii("").unwrap(),
+            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132514708162669827.try_into().unwrap(),
                 mtime: 132514707831351075.try_into().unwrap(),
@@ -142,8 +141,8 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
-            comment: AsciiStr::from_ascii("").unwrap(),
+            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132517337704649244.try_into().unwrap(),
                 mtime: 132517337704649244.try_into().unwrap(),
@@ -168,7 +167,7 @@ mod tests {
 
         assert_eq!(44, result.relative_offset);
         assert_eq!(
-            ZipPath::create_from_string("moredata.txt".as_ascii_str().unwrap()).unwrap(),
+            ZipPath::from_cp437(CP437Str::from_slice(b"moredata.txt")).unwrap(),
             result.file_name
         );
     }

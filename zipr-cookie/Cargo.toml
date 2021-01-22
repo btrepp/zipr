@@ -9,5 +9,4 @@ edition = "2018"
 [dependencies]
 zipr-data = {path="../zipr-data"}
 zipr-domain = {path="../zipr-domain"}
-ascii = {version="1.0.0", default-features = false}
 cookie-factory = {version = "0.3.1", default-features=false,git="https://github.com/rust-bakery/cookie-factory.git"}

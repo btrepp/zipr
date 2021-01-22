@@ -26,9 +26,9 @@ pub fn extract_files<P: AsRef<Path> + PartialEq>(
         .sequence()
         .map_err(Into::<AppError>::into)?;
 
+    let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
     for entry in entries.iter() {
-        let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
-        if !files.is_empty() && !files.contains(&entry.file_name.to_path()) {
+        if !files.is_empty() && !files.contains(&entry.file_name.to_path().as_path()) {
             println!("Skipping: {}", entry.file_name.to_string());
         } else {
             let bytes = extract_bytes(entry)?;

@@ -12,7 +12,7 @@ pub trait ToString {
 
 impl ToString for ZipPath<'_> {
     fn to_string(&self) -> String {
-        from_utf8(self.to_bytes()).unwrap().to_string()
+        from_utf8(self.to_cp437().as_slice()).unwrap().to_string()
     }
 }
 
