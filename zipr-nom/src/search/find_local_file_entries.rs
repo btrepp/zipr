@@ -36,9 +36,8 @@ pub fn find_local_file_entries(input: &[u8]) -> IResult<&[u8], Vec<LocalFileEntr
 #[cfg(test)]
 mod tests {
     use super::*;
-    use ascii::AsAsciiStr;
     use nom::Finish;
-    use zipr_data::borrowed::ZipPath;
+    use zipr_data::{borrowed::ZipPath, CP437Str};
 
     #[test]
     fn hello_world_store_as_entries() {
@@ -51,7 +50,7 @@ mod tests {
         assert_eq!(0, rem.len());
         assert_eq!(1, result.len());
         assert_eq!(
-            ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
+            ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
             result[0].file_name
         );
     }
@@ -67,11 +66,11 @@ mod tests {
         assert_eq!(0, rem.len());
         assert_eq!(2, result.len());
         assert_eq!(
-            ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
+            ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
             result[0].file_name
         );
         assert_eq!(
-            ZipPath::create_from_string("moredata.txt".as_ascii_str().unwrap()).unwrap(),
+            ZipPath::from_cp437(CP437Str::from_slice(b"moredata.txt")).unwrap(),
             result[1].file_name
         );
     }

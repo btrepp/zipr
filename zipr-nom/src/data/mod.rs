@@ -3,9 +3,9 @@
 //! Most expect to be given the correct slice as is.
 //! For more user friendly parsers use the higher level functions
 
-mod ascii_char;
 mod central_directory;
 mod compression_method;
+mod cp437_char;
 mod end_of_central_directory;
 mod extra_field;
 mod local_file;

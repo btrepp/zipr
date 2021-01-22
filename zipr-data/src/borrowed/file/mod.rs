@@ -4,8 +4,7 @@
 mod compressed_data;
 
 use super::extra_field::ExtraField;
-use crate::{borrowed::ZipPath, CompressionMethod, DosDate, DosTime, Version};
-use ascii::AsciiStr;
+use crate::{borrowed::ZipPath, CP437Str, CompressionMethod, DosDate, DosTime, Version};
 
 pub use compressed_data::CompressedData;
 
@@ -18,7 +17,7 @@ pub struct EndOfCentralDirectory<'a> {
     pub total_number_records: u16,
     pub size_of_directory: u32,
     pub offset_start_directory: u32,
-    pub comment: &'a AsciiStr,
+    pub comment: CP437Str<'a>,
 }
 
 /// An entry for a file in the central directory
@@ -40,7 +39,7 @@ pub struct CentralDirectoryEntry<'a> {
     pub relative_offset: u32,
     pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
-    pub comment: &'a AsciiStr,
+    pub comment: CP437Str<'a>,
 }
 
 /// The local file description

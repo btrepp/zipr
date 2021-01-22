@@ -3,7 +3,7 @@ use zipr_data::{
         file::{CentralDirectoryEntry, EndOfCentralDirectory, LocalFileEntry},
         ZipEntry,
     },
-    constants,
+    constants, CP437Str,
 };
 
 use zipr_domain::zip_entry_to_files;
@@ -33,7 +33,7 @@ where
     state: State,
     first_pass: I,
     second_pass: I,
-    comment: &'a ascii::AsciiStr,
+    comment: CP437Str<'a>,
     size_of_directory: u32,
 }
 
@@ -64,13 +64,13 @@ where
                 Some(x) => {
                     let (_, directory) = zip_entry_to_files(self.position, x);
                     let increment = constants::LOCAL_FILE_MIN_LENGTH as u32
-                        + directory.file_name.len() as u32
+                        + directory.file_name.to_cp437().as_slice().len() as u32
                         + directory.compressed_size as u32
                         + directory.extra_field.serialized_len() as u32;
                     let directory_increment = constants::CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as u32
-                        + directory.file_name.len() as u32
+                        + directory.file_name.to_cp437().as_slice().len() as u32
                         + directory.extra_field.serialized_len() as u32
-                        + directory.comment.len() as u32;
+                        + directory.comment.as_slice().len() as u32;
 
                     self.position += increment;
                     self.size_of_directory += directory_increment;
@@ -114,7 +114,7 @@ where
         second_pass,
         state,
         size_of_directory: 0,
-        comment: ascii::AsciiStr::from_ascii(b"").unwrap(),
+        comment: Default::default(),
     }
 }
 
@@ -124,7 +124,7 @@ mod tests {
     use core::{convert::TryInto, panic};
     use zipr_data::{
         borrowed::{extra_field::ExtraField, file::CompressedData, ZipEntry, ZipPath},
-        constants, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
+        constants, CP437Str, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
         ZipSpecification,
     };
 
@@ -153,14 +153,11 @@ mod tests {
             general_purpose: 0,
             file_modification_date: DosDate::from_u16_unchecked(0),
             file_modification_time: DosTime::from_u16_unchecked(0),
-            file_name: ZipPath::create_from_string(
-                ascii::AsciiStr::from_ascii(b"hello.txt").unwrap(),
-            )
-            .unwrap(),
+            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
             external_file_attributes: 0,
             internal_file_attributes: 0,
             extra_field: ExtraField::Unknown(&[]),
-            comment: ascii::AsciiStr::from_ascii(b"").unwrap(),
+            comment: Default::default(),
             compressed_data,
         };
         input
@@ -169,8 +166,7 @@ mod tests {
     fn two_entries() -> [ZipEntry<'static>; 2] {
         let a = single_entry();
         let mut b = single_entry();
-        b.file_name =
-            ZipPath::create_from_string(ascii::AsciiStr::from_ascii(b"second").unwrap()).unwrap();
+        b.file_name = ZipPath::from_cp437(CP437Str::from_slice(b"second")).unwrap();
         [a, b]
     }
 
@@ -279,7 +275,7 @@ mod tests {
         let mut result = layout(input.iter());
         let first_item = result.nth(3).unwrap();
 
-        let file_name_length = input[0].file_name.len() as u32;
+        let file_name_length = input[0].file_name.to_cp437().as_slice().len() as u32;
         let data_length = input[0].compressed_data.bytes().len() as u32;
         let expected_position =
             file_name_length + data_length + constants::LOCAL_FILE_MIN_LENGTH as u32;
@@ -297,12 +293,12 @@ mod tests {
         let mut result = layout(input.iter());
         let first_item = result.nth(4).unwrap();
 
-        let file_name_length_first = input[0].file_name.len() as u32;
+        let file_name_length_first = input[0].file_name.to_cp437().as_slice().len() as u32;
         let data_length_first = input[0].compressed_data.bytes().len() as u32;
         let expected_position_first =
             file_name_length_first + data_length_first + constants::LOCAL_FILE_MIN_LENGTH as u32;
 
-        let file_name_length_second = input[1].file_name.len() as u32;
+        let file_name_length_second = input[1].file_name.to_cp437().as_slice().len() as u32;
         let data_length_second = input[1].compressed_data.bytes().len() as u32;
         let expected_position_second =
             file_name_length_second + data_length_second + constants::LOCAL_FILE_MIN_LENGTH as u32;

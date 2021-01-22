@@ -14,12 +14,14 @@ pub mod constants;
 mod util;
 
 mod compression_method;
+mod cp437;
 mod dos_date;
 mod dos_time;
 mod version;
 mod wintimestamp;
 
 pub use compression_method::*;
+pub use cp437::*;
 pub use dos_date::*;
 pub use dos_time::*;
 pub use version::*;

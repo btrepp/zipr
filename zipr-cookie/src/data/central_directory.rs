@@ -1,5 +1,5 @@
 use super::{
-    ascii_char::ascii_chars, compression_method, extra_field, extra_field_len, version, zip_path,
+    compression_method, cp437str::cp437_chars, extra_field, extra_field_len, version, zip_path,
 };
 use cookie_factory::{
     bytes::{le_u16, le_u32},
@@ -26,31 +26,30 @@ pub fn central_directory_entry<'a, W: Write + 'a>(
         le_u32(input.crc32),
         le_u32(input.compressed_size),
         le_u32(input.uncompressed_size),
-        le_u16(input.file_name.len() as u16),
+        le_u16(input.file_name.to_cp437().as_slice().len() as u16),
         extra_field_len(&input.extra_field),
-        le_u16(input.comment.len() as u16),
+        le_u16(input.comment.as_slice().len() as u16),
         le_u16(0),
         le_u16(input.internal_file_attributes),
         le_u32(input.external_file_attributes),
         le_u32(input.relative_offset),
         zip_path(&input.file_name),
         extra_field(input.extra_field),
-        ascii_chars(input.comment),
+        cp437_chars(&input.comment),
     ))
 }
 
 #[cfg(test)]
 mod tests {
-    use core::{convert::TryInto, panic};
-
-    use ascii::{AsAsciiStr, AsciiStr};
     use cookie_factory::gen;
+    use core::{convert::TryInto, panic};
     use zipr_data::{
         borrowed::{
             extra_field::{ntfs::NTFS, ExtraField},
             ZipPath,
         },
-        CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,
+        CP437Str, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
+        ZipSpecification,
     };
 
     use super::*;
@@ -81,8 +80,8 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
-            comment: AsciiStr::from_ascii("").unwrap(),
+            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132514708162669827.try_into().unwrap(),
                 mtime: 132514707831351075.try_into().unwrap(),
@@ -125,8 +124,8 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::create_from_string("hello.txt".as_ascii_str().unwrap()).unwrap(),
-            comment: AsciiStr::from_ascii("").unwrap(),
+            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132517337704649244.try_into().unwrap(),
                 mtime: 132517337704649244.try_into().unwrap(),
