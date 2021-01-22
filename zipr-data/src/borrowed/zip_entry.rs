@@ -1,4 +1,6 @@
-use crate::{CP437Str, DosDate, DosTime, Version};
+use oem_437::OEM437Str;
+
+use crate::{DosDate, DosTime, Version};
 
 use super::{extra_field::ExtraField, file::CompressedData, ZipPath};
 
@@ -19,6 +21,6 @@ pub struct ZipEntry<'a> {
     pub external_file_attributes: u32,
     pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
-    pub comment: CP437Str<'a>,
+    pub comment: OEM437Str<'a>,
     pub compressed_data: CompressedData<'a>,
 }

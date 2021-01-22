@@ -4,9 +4,9 @@
 mod compressed_data;
 
 use super::extra_field::ExtraField;
-use crate::{borrowed::ZipPath, CP437Str, CompressionMethod, DosDate, DosTime, Version};
-
+use crate::{borrowed::ZipPath, CompressionMethod, DosDate, DosTime, Version};
 pub use compressed_data::CompressedData;
+use oem_437::OEM437Str;
 
 /// End of central directory header
 /// This appears at the end of the file
@@ -17,7 +17,7 @@ pub struct EndOfCentralDirectory<'a> {
     pub total_number_records: u16,
     pub size_of_directory: u32,
     pub offset_start_directory: u32,
-    pub comment: CP437Str<'a>,
+    pub comment: OEM437Str<'a>,
 }
 
 /// An entry for a file in the central directory
@@ -39,7 +39,7 @@ pub struct CentralDirectoryEntry<'a> {
     pub relative_offset: u32,
     pub file_name: ZipPath<'a>,
     pub extra_field: ExtraField<'a>,
-    pub comment: CP437Str<'a>,
+    pub comment: OEM437Str<'a>,
 }
 
 /// The local file description

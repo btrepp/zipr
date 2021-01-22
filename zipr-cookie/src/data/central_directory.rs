@@ -46,10 +46,9 @@ mod tests {
     use zipr_data::{
         borrowed::{
             extra_field::{ntfs::NTFS, ExtraField},
-            ZipPath,
+            OEM437Str, ZipPath,
         },
-        CP437Str, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
-        ZipSpecification,
+        CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,
     };
 
     use super::*;
@@ -80,7 +79,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from_slice(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132514708162669827.try_into().unwrap(),
@@ -124,7 +123,7 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from_slice(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132517337704649244.try_into().unwrap(),

@@ -1,9 +1,9 @@
 use zipr_data::{
     borrowed::{
         file::{CentralDirectoryEntry, EndOfCentralDirectory, LocalFileEntry},
-        ZipEntry,
+        OEM437Str, ZipEntry,
     },
-    constants, CP437Str,
+    constants,
 };
 
 use zipr_domain::zip_entry_to_files;
@@ -33,7 +33,7 @@ where
     state: State,
     first_pass: I,
     second_pass: I,
-    comment: CP437Str<'a>,
+    comment: OEM437Str<'a>,
     size_of_directory: u32,
 }
 
@@ -123,8 +123,8 @@ mod tests {
 
     use core::{convert::TryInto, panic};
     use zipr_data::{
-        borrowed::{extra_field::ExtraField, file::CompressedData, ZipEntry, ZipPath},
-        constants, CP437Str, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
+        borrowed::{extra_field::ExtraField, file::CompressedData, OEM437Str, ZipEntry, ZipPath},
+        constants, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
         ZipSpecification,
     };
 
@@ -153,7 +153,7 @@ mod tests {
             general_purpose: 0,
             file_modification_date: DosDate::from_u16_unchecked(0),
             file_modification_time: DosTime::from_u16_unchecked(0),
-            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from_slice(b"hello.txt")).unwrap(),
             external_file_attributes: 0,
             internal_file_attributes: 0,
             extra_field: ExtraField::Unknown(&[]),
@@ -166,7 +166,7 @@ mod tests {
     fn two_entries() -> [ZipEntry<'static>; 2] {
         let a = single_entry();
         let mut b = single_entry();
-        b.file_name = ZipPath::from_cp437(CP437Str::from_slice(b"second")).unwrap();
+        b.file_name = ZipPath::from_cp437(OEM437Str::from_slice(b"second")).unwrap();
         [a, b]
     }
 

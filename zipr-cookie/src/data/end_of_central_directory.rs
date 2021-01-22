@@ -32,8 +32,8 @@ mod tests {
     use super::*;
     use cookie_factory::gen;
     use zipr_data::{
-        borrowed::file::EndOfCentralDirectory, constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE,
-        CP437Str,
+        borrowed::{file::EndOfCentralDirectory, OEM437Str},
+        constants::END_OF_CENTRAL_DIRECTORY_MIN_SIZE,
     };
 
     const MINIMAL: [u8; 22] = [
@@ -47,7 +47,7 @@ mod tests {
             total_number_records: 0,
             size_of_directory: 0,
             offset_start_directory: 0,
-            comment: CP437Str::from_slice(b""),
+            comment: OEM437Str::from_slice(b""),
         };
         let mut buffer = [0u8; END_OF_CENTRAL_DIRECTORY_MIN_SIZE];
         let serializer = end_of_central_directory(&input);
