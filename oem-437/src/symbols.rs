@@ -81,7 +81,7 @@ where
     }
 
     fn to_utf8(&'a self) -> SymbolIterator<'a> {
-        let iter = self.as_ref().iter();
+        let iter = self.as_ref().as_ref().iter();
         SymbolIterator { data: iter }
     }
 }
