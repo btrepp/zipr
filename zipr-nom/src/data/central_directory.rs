@@ -3,14 +3,13 @@ use nom::{
     number::complete::le_u16, number::complete::le_u32, IResult,
 };
 use zipr_data::{
-    borrowed::{file::CentralDirectoryEntry, OEM437Str},
-    constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE,
-    DosDate, DosTime,
+    borrowed::file::CentralDirectoryEntry, constants::CENTRAL_DIRECTORY_HEADER_SIGNATURE, DosDate,
+    DosTime,
 };
 
 use super::{
-    compression_method::parse_compression_method, extra_field::parse_extra_field, parse_version,
-    zip_path::parse_zip_path,
+    compression_method::parse_compression_method, cp437_char::parse_cp437_chars,
+    extra_field::parse_extra_field, parse_version, zip_path::parse_zip_path,
 };
 
 /// Parses a single directory header
@@ -38,7 +37,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 
     let (input, extra_field) = map_parser(take(extra_field_length), parse_extra_field)(input)?;
 
-    let (input, comment) = map(take(comment_length), OEM437Str::from_slice)(input)?;
+    let (input, comment) = map_parser(take(comment_length), parse_cp437_chars)(input)?;
     let result = CentralDirectoryEntry {
         version_made_by,
         version_needed,
@@ -66,7 +65,7 @@ mod tests {
     use zipr_data::{
         borrowed::{
             extra_field::{ntfs::NTFS, ExtraField},
-            ZipPath,
+            OEM437Str, ZipPath,
         },
         CompressionMethod, HostCompatibility, Version, ZipSpecification,
     };
@@ -100,7 +99,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(OEM437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132514708162669827.try_into().unwrap(),
@@ -142,7 +141,7 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(OEM437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132517337704649244.try_into().unwrap(),
@@ -168,7 +167,7 @@ mod tests {
 
         assert_eq!(44, result.relative_offset);
         assert_eq!(
-            ZipPath::from_cp437(OEM437Str::from_slice(b"moredata.txt")).unwrap(),
+            ZipPath::from_cp437(OEM437Str::from(b"moredata.txt")).unwrap(),
             result.file_name
         );
     }

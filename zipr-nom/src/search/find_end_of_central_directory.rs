@@ -46,7 +46,7 @@ mod tests {
     #[test]
     fn hello_world_store_with_comment() {
         let input = include_bytes!("../../../assets/hello_world_store_with_comment.zip");
-        let comment = OEM437Str::from_slice(b"tricky");
+        let comment = OEM437Str::from(b"tricky");
         let result = find_end_of_central_directory(input);
         let expected = EndOfCentralDirectory {
             total_number_records: 1,

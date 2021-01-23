@@ -8,7 +8,7 @@ where
 {
     let cp437 = characters.to_cp437();
     move |out: WriteContext<W>| {
-        let characters = cp437.as_slice();
+        let characters = cp437;
         slice(characters)(out)
     }
 }

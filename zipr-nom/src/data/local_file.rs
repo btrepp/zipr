@@ -79,7 +79,7 @@ mod tests {
             general_purpose: 0,
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),
-            file_name: ZipPath::from_cp437(OEM437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
             extra_field: ExtraField::Unknown(&[]),
             compressed_data,
         };

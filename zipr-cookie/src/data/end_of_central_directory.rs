@@ -22,7 +22,7 @@ pub fn end_of_central_directory<'a, W: Write + 'a>(
         le_u16(input.total_number_records),
         le_u32(input.size_of_directory),
         le_u32(input.offset_start_directory),
-        le_u16(input.comment.as_slice().len() as u16),
+        le_u16(input.comment.len() as u16),
         cp437_chars(&input.comment),
     ))
 }
@@ -47,7 +47,7 @@ mod tests {
             total_number_records: 0,
             size_of_directory: 0,
             offset_start_directory: 0,
-            comment: OEM437Str::from_slice(b""),
+            comment: OEM437Str::from(b""),
         };
         let mut buffer = [0u8; END_OF_CENTRAL_DIRECTORY_MIN_SIZE];
         let serializer = end_of_central_directory(&input);

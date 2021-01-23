@@ -6,17 +6,37 @@
 #[derive(PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Clone, Copy, Default)]
 pub struct OEM437Str<'a>(&'a [u8]);
 
-// We keep the implmentation incredibly bare-bones
-// as there are a few different ways of translating this
-impl<'a> OEM437Str<'a> {
-    pub fn from_slice(str: &[u8]) -> OEM437Str<'_> {
-        OEM437Str(str)
+impl<'a, T> From<&'a T> for OEM437Str<'a>
+where
+    T: AsRef<[u8]>,
+{
+    fn from(slice: &'a T) -> Self {
+        OEM437Str(slice.as_ref())
     }
+}
 
-    pub fn as_slice(self) -> &'a [u8] {
+impl<'a> From<&'a [u8]> for OEM437Str<'a> {
+    fn from(slice: &'a [u8]) -> Self {
+        OEM437Str(slice)
+    }
+}
+
+impl<'a> AsRef<[u8]> for OEM437Str<'a> {
+    fn as_ref(&self) -> &[u8] {
+        self.0
+    }
+}
+
+impl<'a> core::ops::Deref for OEM437Str<'a> {
+    type Target = [u8];
+
+    fn deref(&self) -> &'a Self::Target {
         self.0
     }
 }
 
 mod symbols;
 pub use symbols::*;
+
+#[cfg(test)]
+mod tests {}

@@ -22,7 +22,7 @@ pub fn add_files<P: AsRef<Path>>(
         let extra_field = zipr::data::borrowed::extra_field::ExtraField::Unknown(&[]);
         let file_modification_time = zipr::data::DosTime::from_u16_unchecked(0);
         let file_modification_date = zipr::data::DosDate::from_u16_unchecked(0);
-        let file_name = zipr::data::borrowed::ZipPath::from_cp437(OEM437Str::from_slice(
+        let file_name = zipr::data::borrowed::ZipPath::from_cp437(OEM437Str::from(
             path.to_str().unwrap().as_bytes(),
         ))
         .unwrap();

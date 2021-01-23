@@ -6,6 +6,6 @@ pub fn cp437_chars<'a, W: 'a>(characters: &'a OEM437Str<'a>) -> impl SerializeFn
 where
     W: Write,
 {
-    let bytes = characters.as_slice();
+    let bytes = characters;
     slice(bytes)
 }

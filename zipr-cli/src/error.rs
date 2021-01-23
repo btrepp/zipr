@@ -1,8 +1,5 @@
 use std::fmt::Display;
-use zipr::{
-    compression::DecompressError, data::borrowed::OEM437ToUtf8Error,
-    nom::iter::ZipEntryIteratorError,
-};
+use zipr::{compression::DecompressError, nom::iter::ZipEntryIteratorError};
 
 pub type AppResult<T> = Result<T, AppError>;
 #[derive(Debug)]
@@ -11,7 +8,6 @@ pub enum AppError {
     NomError(nom::error::Error<Vec<u8>>),
     ZipIteratorError(ZipEntryIteratorError),
     IOError(std::io::Error),
-    StringEncoding(OEM437ToUtf8Error),
 }
 
 impl From<std::io::Error> for AppError {
@@ -36,12 +32,6 @@ impl From<nom::error::Error<&'_ [u8]>> for AppError {
         let data = e.input.to_vec();
         let error = nom::error::Error::new(data, e.code);
         AppError::NomError(error)
-    }
-}
-
-impl From<OEM437ToUtf8Error> for AppError {
-    fn from(err: OEM437ToUtf8Error) -> Self {
-        AppError::StringEncoding(err)
     }
 }
 

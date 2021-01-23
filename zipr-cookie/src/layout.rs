@@ -64,13 +64,13 @@ where
                 Some(x) => {
                     let (_, directory) = zip_entry_to_files(self.position, x);
                     let increment = constants::LOCAL_FILE_MIN_LENGTH as u32
-                        + directory.file_name.to_cp437().as_slice().len() as u32
+                        + directory.file_name.to_cp437().len() as u32
                         + directory.compressed_size as u32
                         + directory.extra_field.serialized_len() as u32;
                     let directory_increment = constants::CENTRAL_DIRECTORY_HEAD_MIN_LENGTH as u32
-                        + directory.file_name.to_cp437().as_slice().len() as u32
+                        + directory.file_name.to_cp437().len() as u32
                         + directory.extra_field.serialized_len() as u32
-                        + directory.comment.as_slice().len() as u32;
+                        + directory.comment.len() as u32;
 
                     self.position += increment;
                     self.size_of_directory += directory_increment;
@@ -153,7 +153,7 @@ mod tests {
             general_purpose: 0,
             file_modification_date: DosDate::from_u16_unchecked(0),
             file_modification_time: DosTime::from_u16_unchecked(0),
-            file_name: ZipPath::from_cp437(OEM437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
             external_file_attributes: 0,
             internal_file_attributes: 0,
             extra_field: ExtraField::Unknown(&[]),
@@ -166,7 +166,7 @@ mod tests {
     fn two_entries() -> [ZipEntry<'static>; 2] {
         let a = single_entry();
         let mut b = single_entry();
-        b.file_name = ZipPath::from_cp437(OEM437Str::from_slice(b"second")).unwrap();
+        b.file_name = ZipPath::from_cp437(OEM437Str::from(b"second")).unwrap();
         [a, b]
     }
 
@@ -275,7 +275,7 @@ mod tests {
         let mut result = layout(input.iter());
         let first_item = result.nth(3).unwrap();
 
-        let file_name_length = input[0].file_name.to_cp437().as_slice().len() as u32;
+        let file_name_length = input[0].file_name.to_cp437().len() as u32;
         let data_length = input[0].compressed_data.bytes().len() as u32;
         let expected_position =
             file_name_length + data_length + constants::LOCAL_FILE_MIN_LENGTH as u32;
@@ -293,12 +293,12 @@ mod tests {
         let mut result = layout(input.iter());
         let first_item = result.nth(4).unwrap();
 
-        let file_name_length_first = input[0].file_name.to_cp437().as_slice().len() as u32;
+        let file_name_length_first = input[0].file_name.to_cp437().len() as u32;
         let data_length_first = input[0].compressed_data.bytes().len() as u32;
         let expected_position_first =
             file_name_length_first + data_length_first + constants::LOCAL_FILE_MIN_LENGTH as u32;
 
-        let file_name_length_second = input[1].file_name.to_cp437().as_slice().len() as u32;
+        let file_name_length_second = input[1].file_name.to_cp437().len() as u32;
         let data_length_second = input[1].compressed_data.bytes().len() as u32;
         let expected_position_second =
             file_name_length_second + data_length_second + constants::LOCAL_FILE_MIN_LENGTH as u32;
