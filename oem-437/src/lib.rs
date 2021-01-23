@@ -13,7 +13,10 @@ impl<'a> OEM437Str<'a> {
         OEM437Str(str)
     }
 
-    pub fn as_slice(&self) -> &[u8] {
+    pub fn as_slice(self) -> &'a [u8] {
         self.0
     }
 }
+
+mod symbols;
+pub use symbols::*;
