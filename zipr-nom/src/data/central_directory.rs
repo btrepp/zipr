@@ -60,7 +60,10 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 
 #[cfg(test)]
 mod tests {
-    use core::{convert::TryInto, panic};
+    use core::{
+        convert::{TryFrom, TryInto},
+        panic,
+    };
 
     use zipr_data::{
         borrowed::{
@@ -99,7 +102,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
+            file_name: ZipPath::try_from(OEM437Str::from(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132514708162669827.try_into().unwrap(),
@@ -141,7 +144,7 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
+            file_name: ZipPath::try_from(OEM437Str::from(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132517337704649244.try_into().unwrap(),
@@ -167,7 +170,7 @@ mod tests {
 
         assert_eq!(44, result.relative_offset);
         assert_eq!(
-            ZipPath::from_cp437(OEM437Str::from(b"moredata.txt")).unwrap(),
+            ZipPath::try_from(OEM437Str::from(b"moredata.txt")).unwrap(),
             result.file_name
         );
     }

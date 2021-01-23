@@ -26,7 +26,7 @@ pub fn central_directory_entry<'a, W: Write + 'a>(
         le_u32(input.crc32),
         le_u32(input.compressed_size),
         le_u32(input.uncompressed_size),
-        le_u16(input.file_name.to_cp437().len() as u16),
+        le_u16(input.file_name.as_ref().len() as u16),
         extra_field_len(&input.extra_field),
         le_u16(input.comment.len() as u16),
         le_u16(0),
@@ -42,7 +42,10 @@ pub fn central_directory_entry<'a, W: Write + 'a>(
 #[cfg(test)]
 mod tests {
     use cookie_factory::gen;
-    use core::{convert::TryInto, panic};
+    use core::{
+        convert::{TryFrom, TryInto},
+        panic,
+    };
     use zipr_data::{
         borrowed::{
             extra_field::{ntfs::NTFS, ExtraField},
@@ -79,7 +82,7 @@ mod tests {
             uncompressed_size: 5,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
+            file_name: ZipPath::try_from(OEM437Str::from(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132514708162669827.try_into().unwrap(),
@@ -123,7 +126,7 @@ mod tests {
             uncompressed_size: 215,
             internal_file_attributes: 0,
             external_file_attributes: 32,
-            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
+            file_name: ZipPath::try_from(OEM437Str::from(b"hello.txt")).unwrap(),
             comment: Default::default(),
             extra_field: ExtraField::NTFS(NTFS {
                 atime: 132517337704649244.try_into().unwrap(),

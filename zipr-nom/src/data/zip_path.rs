@@ -1,3 +1,5 @@
+use core::convert::TryFrom;
+
 use nom::{
     bytes::complete::take,
     combinator::{map_parser, map_res},
@@ -9,7 +11,7 @@ use super::cp437_char::parse_cp437_chars;
 
 pub fn parse_zip_path<'a>(input: &'a [u8]) -> IResult<&[u8], ZipPath<'a>> {
     let to_path = |input: OEM437Str<'a>| -> Result<ZipPath<'a>, ZipPathError> {
-        let result = ZipPath::from_cp437(input)?;
+        let result = ZipPath::try_from(input)?;
         Ok(result)
     };
 

@@ -21,7 +21,7 @@ pub fn local_file_entry<'a, W: Write + 'a>(
         le_u32(input.compressed_data.crc32()),
         le_u32(input.compressed_data.bytes().len() as u32),
         le_u32(input.compressed_data.uncompressed_size()),
-        le_u16(input.file_name.to_cp437().len() as u16),
+        le_u16(input.file_name.as_ref().len() as u16),
         extra_field_len(&input.extra_field),
         zip_path(&input.file_name),
         extra_field(input.extra_field),
@@ -32,7 +32,10 @@ pub fn local_file_entry<'a, W: Write + 'a>(
 #[cfg(test)]
 mod tests {
     use cookie_factory::gen;
-    use core::{convert::TryInto, panic};
+    use core::{
+        convert::{TryFrom, TryInto},
+        panic,
+    };
     use zipr_data::{
         borrowed::{extra_field::ExtraField, file::CompressedData, OEM437Str, ZipPath},
         CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,
@@ -61,7 +64,7 @@ mod tests {
             general_purpose: 0,
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),
-            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
+            file_name: ZipPath::try_from(OEM437Str::from(b"hello.txt")).unwrap(),
             extra_field: ExtraField::Unknown(&[]),
             compressed_data,
         };

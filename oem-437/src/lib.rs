@@ -32,7 +32,7 @@ where
 
 /// Allows the string to be treated as a slice of u8
 impl<'a> AsRef<[u8]> for OEM437Str<'a> {
-    fn as_ref(&self) -> &[u8] {
+    fn as_ref(&self) -> &'a [u8] {
         self.0
     }
 }
@@ -48,6 +48,7 @@ impl<'a> core::ops::Deref for OEM437Str<'a> {
     }
 }
 
+mod symbolmap;
 mod symbols;
 pub use symbols::*;
 
