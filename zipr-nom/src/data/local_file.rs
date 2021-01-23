@@ -51,9 +51,8 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
 mod tests {
     use core::{convert::TryInto, panic};
     use zipr_data::{
-        borrowed::{extra_field::ExtraField, ZipPath},
-        CP437Str, CompressionMethod, DosDate, DosTime, HostCompatibility, Version,
-        ZipSpecification,
+        borrowed::{extra_field::ExtraField, OEM437Str, ZipPath},
+        CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,
     };
 
     use super::*;
@@ -80,7 +79,7 @@ mod tests {
             general_purpose: 0,
             file_modification_time: DosTime::from_u16_unchecked(41164),
             file_modification_date: DosDate::from_u16_unchecked(20867),
-            file_name: ZipPath::from_cp437(CP437Str::from_slice(b"hello.txt")).unwrap(),
+            file_name: ZipPath::from_cp437(OEM437Str::from(b"hello.txt")).unwrap(),
             extra_field: ExtraField::Unknown(&[]),
             compressed_data,
         };

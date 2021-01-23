@@ -1,5 +1,5 @@
 [package]
-name = "zipr-data"
+name = "oem-437"
 version = "0.1.0"
 authors = ["beau trepp <beautrepp@gmail.com>"]
 edition = "2018"
@@ -8,4 +8,3 @@ edition = "2018"
 
 [dependencies]
 typenum = {version="1.12.0"}
-oem-437 = {path="../oem-437"}

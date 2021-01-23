@@ -7,7 +7,7 @@ pub trait ToPath {
 
 impl<'a> ToPath for ZipPath<'a> {
     fn to_path(&self) -> PathBuf {
-        let bytes = self.to_cp437().as_slice().to_owned();
+        let bytes = self.to_cp437().to_owned();
         let string = from_utf8(&bytes).unwrap().to_owned();
         PathBuf::new().join(string)
     }

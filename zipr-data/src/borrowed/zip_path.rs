@@ -1,4 +1,4 @@
-use crate::CP437Str;
+use oem_437::OEM437Str;
 
 /// A borrow of a ascii str
 ///
@@ -6,7 +6,7 @@ use crate::CP437Str;
 /// zip file. Note this is a subset of path or asciistr.
 /// as there are invalid states possible
 #[derive(Debug, PartialEq, Copy, Clone)]
-pub struct ZipPath<'a>(CP437Str<'a>);
+pub struct ZipPath<'a>(OEM437Str<'a>);
 
 /// Error for when a string is not a valid zippath
 #[derive(Debug)]
@@ -19,12 +19,12 @@ impl<'a> ZipPath<'a> {
     /// MUST be forward slashes '/' as opposed to
     /// backwards slashes '\' for compatibility with Amiga
     /// and UNIX file systems etc.
-    pub fn from_cp437(string: CP437Str<'a>) -> Result<Self, ZipPathError> {
+    pub fn from_cp437(string: OEM437Str<'a>) -> Result<Self, ZipPathError> {
         // need to validate this in future
         Ok(ZipPath(string))
     }
 
-    pub fn to_cp437(&self) -> CP437Str<'a> {
+    pub fn to_cp437(&self) -> OEM437Str<'a> {
         self.0
     }
 }

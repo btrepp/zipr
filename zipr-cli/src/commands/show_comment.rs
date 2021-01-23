@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use nom::Finish;
-use zipr::nom::find_end_of_central_directory;
+use zipr::{data::borrowed::OEM437Symbols, nom::find_end_of_central_directory};
 
 use crate::error::{AppError, AppResult};
 
@@ -14,8 +14,7 @@ where
     let (_, file) = find_end_of_central_directory(&bytes)
         .finish()
         .map_err(Into::<AppError>::into)?;
-    let comment = file.comment.as_slice();
-    let comment = String::from_utf8(comment.into()).unwrap();
+    let comment = OEM437Symbols::from(file.comment);
     println!("{}", comment);
     Ok(())
 }

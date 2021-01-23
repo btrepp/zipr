@@ -8,5 +8,6 @@ members = [
     "zipr-cookie",
     "zipr-cli",
     "zipr-std",
-    "zipr-compression"
+    "zipr-compression",
+    "oem-437"
 ]

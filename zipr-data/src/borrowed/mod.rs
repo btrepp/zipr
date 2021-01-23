@@ -11,5 +11,6 @@ pub mod file;
 mod zip_entry;
 mod zip_path;
 
+pub use oem_437::*;
 pub use zip_entry::*;
 pub use zip_path::*;
