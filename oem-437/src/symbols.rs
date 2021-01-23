@@ -1,19 +1,21 @@
-use crate::OEM437Str;
+use crate::{symbolmap::oem437_lookup_unicode_char, OEM437Str};
 use core::fmt::Write;
 use core::str::from_utf8;
-
 #[derive(PartialEq, Copy, Clone)]
 
 /// New type in which we are happy to treat all characters as symbols
 /// some strategies treat certain values as control characters instead
 pub struct OEM437Symbols<'a>(OEM437Str<'a>);
 
+/// This is a trivial newtype over the oemstr, so just wrap it
 impl<'a> From<OEM437Str<'a>> for OEM437Symbols<'a> {
     fn from(str: OEM437Str<'a>) -> Self {
         OEM437Symbols(str)
     }
 }
 
+/// Allows the newtype to be treated as a unknown str
+/// Helpful for traits
 impl<'a> AsRef<OEM437Str<'a>> for OEM437Symbols<'a> {
     fn as_ref(&self) -> &OEM437Str<'a> {
         &self.0
@@ -32,8 +34,7 @@ impl<'a> core::iter::Iterator for SymbolIterator<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         fn expand(byte: &u8) -> char {
-            let u32_val = *byte as u32; //Needs a lookup
-            core::char::from_u32(u32_val).unwrap() //? should be safe from our mapping
+            oem437_lookup_unicode_char(*byte)
         }
 
         self.data.next().map(expand)
@@ -86,6 +87,8 @@ where
     }
 }
 
+/// Display is only implemented when we are happy with it
+/// being a symbol
 impl<'a> core::fmt::Display for OEM437Symbols<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> core::fmt::Result {
         for c in self.to_utf8() {
@@ -94,3 +97,6 @@ impl<'a> core::fmt::Display for OEM437Symbols<'a> {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {}

@@ -1,8 +1,6 @@
-use std::str::from_utf8;
-
 use comfy_table::Table;
 use zipr::{
-    data::borrowed::{ZipEntry, ZipPath},
+    data::borrowed::{AsSymbols, ZipEntry, ZipPath},
     std::{ToNaiveDate, ToNaiveTime},
 };
 
@@ -12,7 +10,7 @@ pub trait ToString {
 
 impl ToString for ZipPath<'_> {
     fn to_string(&self) -> String {
-        from_utf8(&self.to_cp437()).unwrap().to_string()
+        self.to_utf8().collect::<String>()
     }
 }
 
