@@ -4,6 +4,24 @@ pub fn oem437_lookup_unicode_char(byte: u8) -> char {
     unsafe { core::char::from_u32_unchecked(u32_val) }
 }
 
+pub fn char_to_oem437(character: char) -> Option<u8> {
+    let as_num: u32 = character.into();
+    if (0x20..0x7F).contains(&as_num) {
+        Some(as_num as u8)
+    } else {
+        let lower = 0..0x20u8;
+        let upper = 0x7F..0xFFu8;
+        let all = lower.into_iter().chain(upper.into_iter());
+        for input in all.into_iter() {
+            let x = oem437_lookup_unicode_char(input) as u32;
+            if as_num == x {
+                return Some(input);
+            }
+        }
+        None
+    }
+}
+
 /// Looks up the unicode point from an oem437
 /// uses symbol sets instead of control codes
 /// https://en.wikipedia.org/wiki/Code_page_437#cite_note-icu-15
@@ -173,5 +191,20 @@ pub fn oem437_lookup_unicode(byte: u8) -> u16 {
         // Not explicitly handled means its the same code
         // in unicode as oem437
         x => x as u16,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{char_to_oem437, oem437_lookup_unicode_char};
+
+    #[test]
+    pub fn round_trip() {
+        let inputs = 0..255u8;
+        for input in inputs.into_iter() {
+            let char = oem437_lookup_unicode_char(input);
+            let output = char_to_oem437(char).unwrap_or_else(|| panic!("{:x}", input));
+            assert_eq!(input, output);
+        }
     }
 }

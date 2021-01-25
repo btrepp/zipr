@@ -8,7 +8,7 @@ use std::{
 };
 use zipr::{
     data::{
-        borrowed::{file::CompressedData, OEM437Str, ZipEntry},
+        borrowed::{file::CompressedData, OEM437Str, OEM437Symbols, ZipEntry},
         CompressionMethod, HostCompatibility, Version, ZipSpecification,
     },
     std::ToPath,
@@ -25,10 +25,9 @@ pub fn add_files<P: AsRef<Path>>(
         let extra_field = zipr::data::borrowed::extra_field::ExtraField::Unknown(&[]);
         let file_modification_time = zipr::data::DosTime::from_u16_unchecked(0);
         let file_modification_date = zipr::data::DosDate::from_u16_unchecked(0);
-        let file_name = zipr::data::borrowed::ZipPath::try_from(OEM437Str::from(
-            path.to_str().unwrap().as_bytes(),
-        ))
-        .unwrap();
+        let symbols = OEM437Symbols::try_from(path.to_str().unwrap())?;
+        let str: OEM437Str = *symbols.as_ref();
+        let file_name = zipr::data::borrowed::ZipPath::try_from(str)?;
 
         let version = Version {
             host: HostCompatibility::MSDOS,

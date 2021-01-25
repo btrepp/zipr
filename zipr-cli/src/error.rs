@@ -1,5 +1,9 @@
 use std::fmt::Display;
-use zipr::{compression::DecompressError, nom::iter::ZipEntryIteratorError};
+use zipr::{
+    compression::DecompressError,
+    data::borrowed::{NotValidOEM437, ZipPathError},
+    nom::iter::ZipEntryIteratorError,
+};
 
 pub type AppResult<T> = Result<T, AppError>;
 #[derive(Debug)]
@@ -8,6 +12,8 @@ pub enum AppError {
     NomError(nom::error::Error<Vec<u8>>),
     ZipIteratorError(ZipEntryIteratorError),
     IOError(std::io::Error),
+    OEM437Error(NotValidOEM437),
+    ZipPathError(ZipPathError),
 }
 
 impl From<std::io::Error> for AppError {
@@ -24,6 +30,18 @@ impl From<ZipEntryIteratorError> for AppError {
 impl From<DecompressError> for AppError {
     fn from(e: DecompressError) -> Self {
         AppError::Decompression(e)
+    }
+}
+
+impl From<NotValidOEM437> for AppError {
+    fn from(e: NotValidOEM437) -> Self {
+        AppError::OEM437Error(e)
+    }
+}
+
+impl From<ZipPathError> for AppError {
+    fn from(e: ZipPathError) -> Self {
+        AppError::ZipPathError(e)
     }
 }
 
