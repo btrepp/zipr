@@ -1,6 +1,10 @@
-use crate::{symbolmap::oem437_lookup_unicode_char, OEM437Str};
+use crate::{
+    symbolmap::{char_to_oem437, oem437_lookup_unicode_char},
+    OEM437Str,
+};
 use core::fmt::Write;
 use core::str::from_utf8;
+use std::convert::TryFrom;
 #[derive(PartialEq, Copy, Clone)]
 
 /// New type in which we are happy to treat all characters as symbols
@@ -11,6 +15,24 @@ pub struct OEM437Symbols<'a>(OEM437Str<'a>);
 impl<'a> From<OEM437Str<'a>> for OEM437Symbols<'a> {
     fn from(str: OEM437Str<'a>) -> Self {
         OEM437Symbols(str)
+    }
+}
+
+#[derive(Debug)]
+pub struct NotValidOEM437();
+impl<'a> TryFrom<&'a str> for OEM437Symbols<'a> {
+    type Error = NotValidOEM437;
+
+    fn try_from(value: &'a str) -> Result<Self, Self::Error> {
+        let is_safe = value.chars().all(|x| char_to_oem437(x).is_some());
+        if is_safe {
+            let bytes = value.as_bytes();
+            let str = OEM437Str(bytes);
+            let symbol = OEM437Symbols(str);
+            Ok(symbol)
+        } else {
+            Err(NotValidOEM437())
+        }
     }
 }
 
