@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 miniz_oxide = { version = "0.4.3"}
 zipr-data = {path="../zipr-data"}
-crc = { version=" ^1.0.0", default-features=false}
+crc = { version="^2.0.0", default-features=false}
