@@ -15,5 +15,5 @@ doc = false
 zipr = {path="../zipr"}
 structopt = { version = "0.3" }
 nom = {version = "6.0.1" }
-comfy-table = "2.0.0"
+comfy-table = "4.0.1"
 cookie-factory = {version = "0.3.1",git="https://github.com/rust-bakery/cookie-factory.git"}
