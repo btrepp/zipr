@@ -1,11 +1,14 @@
-use crc::crc32;
+use crc::Crc;
+use crc::CRC_32_ISO_HDLC;
 use miniz_oxide::deflate::compress_to_vec;
 use zipr_data::{borrowed::file::CompressedData, CompressionMethod};
+
+const CRC32: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
 
 /// Compresses the data using deflate. Note: requires a buffer to store the newly deflated data in
 pub fn deflate<'a>(output: &'a mut alloc::vec::Vec<u8>, bytes: &'_ [u8]) -> CompressedData<'a> {
     let uncompressed_size = bytes.len() as u32;
-    let crc32 = crc32::checksum_ieee(bytes);
+    let crc32 = CRC32.checksum(bytes);
     let buffer = compress_to_vec(bytes, 1);
     output.resize(buffer.len(), 0);
     output.copy_from_slice(&buffer);
@@ -17,7 +20,7 @@ pub fn deflate<'a>(output: &'a mut alloc::vec::Vec<u8>, bytes: &'_ [u8]) -> Comp
 /// bytes
 pub fn store<'a>(output: &'a mut alloc::vec::Vec<u8>, bytes: &'_ [u8]) -> CompressedData<'a> {
     let uncompressed_size = bytes.len() as u32;
-    let crc32 = crc32::checksum_ieee(bytes);
+    let crc32 = CRC32.checksum(bytes);
     output.resize(bytes.len(), 0);
     output.copy_from_slice(bytes);
     let bytes = (*output).as_slice();
