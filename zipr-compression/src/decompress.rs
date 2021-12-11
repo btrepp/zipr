@@ -1,7 +1,10 @@
 use alloc::vec::Vec;
-use crc::crc32;
+use crc::Crc;
+use crc::CRC_32_ISO_HDLC;
 use miniz_oxide::inflate::TINFLStatus;
 use zipr_data::{borrowed::file::CompressedData, CompressionMethod};
+
+const CRC32: Crc<u32> = Crc::<u32>::new(&CRC_32_ISO_HDLC);
 
 /// Enum for ways in which decompression can fail
 #[derive(Debug)]
@@ -30,7 +33,7 @@ impl DecompressToVec for CompressedData<'_> {
             }
         }?;
 
-        let crc = crc32::checksum_ieee(&bytes);
+        let crc = CRC32.checksum(&bytes);
 
         if crc == self.crc32() {
             Ok(bytes)
