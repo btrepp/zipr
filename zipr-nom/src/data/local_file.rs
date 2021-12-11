@@ -49,10 +49,7 @@ pub fn parse_local_file(input: &[u8]) -> IResult<&[u8], LocalFileEntry> {
 
 #[cfg(test)]
 mod tests {
-    use core::{
-        convert::{TryFrom, TryInto},
-        panic,
-    };
+    use core::convert::{TryFrom, TryInto};
     use zipr_data::{
         borrowed::{extra_field::ExtraField, OEM437Str, ZipPath},
         CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,

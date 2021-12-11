@@ -42,7 +42,7 @@ fn invalid_entry(error: nom::error::Error<&'_ [u8]>) -> ZipEntryIteratorError {
 /// This will lazily pull them out until it ends naturally
 /// or fails on the first error
 pub fn zip_entry_iter(input: &[u8]) -> ZipEntryIterator<'_> {
-    let directories = super::iterate_central_directory(&input);
+    let directories = super::iterate_central_directory(input);
     ZipEntryIterator {
         file: input,
         directories,

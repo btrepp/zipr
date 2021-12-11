@@ -42,10 +42,7 @@ pub fn central_directory_entry<'a, W: Write + 'a>(
 #[cfg(test)]
 mod tests {
     use cookie_factory::gen;
-    use core::{
-        convert::{TryFrom, TryInto},
-        panic,
-    };
+    use core::convert::{TryFrom, TryInto};
     use zipr_data::{
         borrowed::{
             extra_field::{ntfs::NTFS, ExtraField},

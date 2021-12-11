@@ -71,7 +71,7 @@ pub trait AsSymbols<'a> {
     /// certain subsets of UTF8 match OEM437, so if
     /// you restrict yourself to these characters it
     /// is convertable without re-allocing
-    fn as_utf8(self) -> Option<&'a str>;
+    fn as_utf8(&self) -> Option<&'a str>;
 
     /// In cases where as_utf8 is not possible.
     /// This allows us to 'expand' the string to utf8
@@ -86,7 +86,7 @@ impl<'a, T> AsSymbols<'a> for T
 where
     T: AsRef<OEM437Str<'a>>,
 {
-    fn as_utf8(self) -> Option<&'a str> {
+    fn as_utf8(&self) -> Option<&'a str> {
         // There is probably more scope here.
         // its just checking ascii, and i'm unsure if the
         // values are mapped correctly from_utf8?

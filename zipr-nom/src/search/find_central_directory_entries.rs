@@ -33,7 +33,7 @@ pub fn find_central_directory_entries(
 
 #[cfg(test)]
 mod tests {
-    use core::{convert::TryFrom, panic};
+    use core::convert::TryFrom;
     use nom::Finish;
     use zipr_data::borrowed::{OEM437Str, ZipPath};
 

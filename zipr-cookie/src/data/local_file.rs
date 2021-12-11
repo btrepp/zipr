@@ -32,10 +32,7 @@ pub fn local_file_entry<'a, W: Write + 'a>(
 #[cfg(test)]
 mod tests {
     use cookie_factory::gen;
-    use core::{
-        convert::{TryFrom, TryInto},
-        panic,
-    };
+    use core::convert::{TryFrom, TryInto};
     use zipr_data::{
         borrowed::{extra_field::ExtraField, file::CompressedData, OEM437Str, ZipPath},
         CompressionMethod, DosDate, DosTime, HostCompatibility, Version, ZipSpecification,

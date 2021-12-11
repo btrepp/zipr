@@ -44,7 +44,6 @@ impl Debug for DosTime {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::panic;
 
     const TIME1: u16 = 41164;
     #[test]

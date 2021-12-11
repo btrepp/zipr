@@ -60,10 +60,7 @@ pub fn parse_directory_header(input: &[u8]) -> IResult<&[u8], CentralDirectoryEn
 
 #[cfg(test)]
 mod tests {
-    use core::{
-        convert::{TryFrom, TryInto},
-        panic,
-    };
+    use core::convert::{TryFrom, TryInto};
 
     use zipr_data::{
         borrowed::{

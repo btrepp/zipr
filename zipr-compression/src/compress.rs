@@ -19,7 +19,7 @@ pub fn store<'a>(output: &'a mut alloc::vec::Vec<u8>, bytes: &'_ [u8]) -> Compre
     let uncompressed_size = bytes.len() as u32;
     let crc32 = crc32::checksum_ieee(bytes);
     output.resize(bytes.len(), 0);
-    output.copy_from_slice(&bytes);
+    output.copy_from_slice(bytes);
     let bytes = (*output).as_slice();
     CompressedData::create_unchecked(uncompressed_size, CompressionMethod::Stored, crc32, bytes)
 }

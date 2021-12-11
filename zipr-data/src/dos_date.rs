@@ -49,7 +49,6 @@ impl Debug for DosDate {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::panic;
 
     const DATE1: u16 = 20867;
     #[test]

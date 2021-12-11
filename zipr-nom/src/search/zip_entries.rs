@@ -15,7 +15,7 @@ pub fn parse_zip_entries(input: &[u8]) -> IResult<&[u8], Vec<ZipEntry<'_>>> {
     // sequence (Vec<IResult> -> IResult<Vec<_>>) for nom.
     let mut local = Vec::with_capacity(directories.len());
     for directory in directories.iter() {
-        let (_, file) = local_entry(input, &directory)?;
+        let (_, file) = local_entry(input, directory)?;
 
         let zip = make_zip_entry(directory, &file);
         local.push(zip);

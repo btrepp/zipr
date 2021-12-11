@@ -51,7 +51,7 @@ pub fn add_files<P: AsRef<Path>>(
             compressed_data,
         };
         Ok(entry)
-    };
+    }
 
     let path = file.as_ref();
     let files: Vec<&Path> = files.iter().map(|x| x.as_ref()).collect();
