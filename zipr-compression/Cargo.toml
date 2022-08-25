@@ -7,6 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-miniz_oxide = { version = "0.5.1"}
+miniz_oxide = { version = "0.6.1"}
 zipr-data = {path="../zipr-data"}
 crc = { version="^2.1.0", default-features=false}
